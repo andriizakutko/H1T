@@ -1,4 +1,4 @@
-﻿namespace Domain.Results;
+﻿namespace Common.Results;
 
 public enum ResultState
 {
