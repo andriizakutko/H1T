@@ -1,4 +1,4 @@
-﻿namespace Domain.Results;
+﻿namespace Common.Results;
 
 public class Result
 {
@@ -18,6 +18,7 @@ public class Result
     private static Result<TValue> Success<TValue>(TValue value) => new(value, true, Error.None);
     
     public static Result UnprocessableEntity(Error error) => new(false, error, ResultState.UnprocessableEntity);
+    public static Result Unauthorized(Error error) => new(false, error, ResultState.Unauthorized);
     
     public static Result Failure(Error error) => new(false, error, ResultState.BadRequest);
     private static Result<TValue> Failure<TValue>(Error error) => new(default,false, error);
