@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
-[HasPermission(Permission.Admin)]
+[HasPermission(Permissions.Admin)]
 [Authorize]
 [Route("api/admin")]
 public class AdminController : BaseApiController

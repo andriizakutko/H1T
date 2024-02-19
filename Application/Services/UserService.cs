@@ -2,7 +2,7 @@
 using Common.Results;
 using Domain;
 using Domain.Interfaces;
-using Permission = Infrastructure.Authentication.Permission;
+using Infrastructure.Authentication;
 
 namespace Application.Services;
 
@@ -109,6 +109,6 @@ public class UserService : IUserService
 
     private async Task AddUserToDefaultPermission(string email)
     {
-        await _adminService.AddUserToPermission(email, Permission.User);
+        await _adminService.AddUserToPermission(email, Permissions.User);
     }
 }
