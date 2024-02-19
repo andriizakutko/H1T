@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text;
+using Common;
 using Common.Options;
 using Common.Results;
 using Dependencies;
@@ -78,7 +79,15 @@ app.Use(async (context, next) =>
     if (context.Response.StatusCode == (int)HttpStatusCode.Unauthorized)
     {
         context.Response.ContentType = "application/json";
-        await context.Response.WriteAsJsonAsync(Result.Unauthorized(new Error("401", "You are not authorized to view this data")).Error);
+
+        var response = new Response()
+        {
+            StatusCode = (int)HttpStatusCode.Unauthorized,
+            Data = null,
+            Error = new Error("Program.Main", "You are not authorized to view this content")
+        };
+        
+        await context.Response.WriteAsJsonAsync(response);
     }
 });
 

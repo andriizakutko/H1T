@@ -2,6 +2,7 @@
 using Common.Results;
 using Domain;
 using Domain.Interfaces;
+using Permission = Infrastructure.Authentication.Permission;
 
 namespace Application.Services;
 
@@ -11,17 +12,20 @@ public class UserService : IUserService
     private readonly IUserValidationService _validationService;
     private readonly IPasswordHashingService _passwordHashingService;
     private readonly IJwtService _jwtService;
+    private readonly IAdminService _adminService;
 
     public UserService(
         IUserStore store, 
         IUserValidationService validationService, 
         IPasswordHashingService passwordHashingService,
-        IJwtService jwtService)
+        IJwtService jwtService,
+        IAdminService adminService)
     {
         _store = store;
         _validationService = validationService;
         _passwordHashingService = passwordHashingService;
         _jwtService = jwtService;
+        _adminService = adminService;
     }
 
     public async Task<Result> Register(RegisterDto registerDto)
@@ -34,8 +38,8 @@ public class UserService : IUserService
             {
                 return validationResult;
             }
-        
-            var isCreated = await _store.Create(new User()
+
+            var user = new User()
             {
                 FirstName = registerDto.FirstName,
                 LastName = registerDto.LastName,
@@ -45,9 +49,14 @@ public class UserService : IUserService
                 Country = registerDto.Country,
                 City = registerDto.City,
                 Address = registerDto.Address
-            });
+            };
+        
+            var isCreated = await _store.Create(user);
 
-            return isCreated ? Result.Success() : Result.Failure(new Error("UserService.Register", "User was not created"));
+            if (!isCreated) return Result.Failure(new Error("UserService.Register", "User was not created"));
+            
+            await AddUserToDefaultPermission(user.Email);
+            return Result.Success();
         }
         catch
         {
@@ -87,6 +96,7 @@ public class UserService : IUserService
 
         return Result<UserDto>.Success(new UserDto()
         {
+            Id = user.Id,
             FirstName = user.FirstName,
             LastName = user.LastName,
             Email = user.Email,
@@ -95,5 +105,10 @@ public class UserService : IUserService
             Address = user.Address,
             IsActive = user.IsActive
         });
+    }
+
+    private async Task AddUserToDefaultPermission(string email)
+    {
+        await _adminService.AddUserToPermission(email, Permission.User);
     }
 }

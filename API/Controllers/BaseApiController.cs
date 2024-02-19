@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using Common;
 using Common.Results;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,10 +12,9 @@ public class BaseApiController : ControllerBase
     {
         return result.State switch
         {
-            ResultState.Ok => new OkObjectResult(result.Value),
+            ResultState.Ok => CreateResponse(HttpStatusCode.OK, result.Value),
             ResultState.NotFound => CreateResponse(HttpStatusCode.NotFound, result.Error),
-            ResultState.BadRequest => new BadRequestObjectResult(result.Error),
-            ResultState.Unauthorized => new UnauthorizedObjectResult(result.Error),
+            ResultState.BadRequest => CreateResponse(HttpStatusCode.BadRequest, result.Error),
             _ => CreateResponse(HttpStatusCode.InternalServerError, result.Error)
         };
     }
@@ -25,19 +25,20 @@ public class BaseApiController : ControllerBase
         {
             ResultState.Ok => CreateResponse(HttpStatusCode.OK),
             ResultState.NotFound => CreateResponse(HttpStatusCode.NotFound, result.Error),
-            ResultState.BadRequest => new BadRequestObjectResult(result.Error),
-            ResultState.Unauthorized => new UnauthorizedObjectResult(result.Error),
+            ResultState.BadRequest => CreateResponse(HttpStatusCode.BadRequest, result.Error),
             _ => CreateResponse(HttpStatusCode.InternalServerError, result.Error)
         };
     }
     
-    private static ActionResult CreateResponse(HttpStatusCode statusCode, Error error = null)
+    private static ActionResult CreateResponse(HttpStatusCode statusCode, object data = null, Error error = null)
     {
-        var response = new ObjectResult(error)
+        var response = new Response()
         {
-            StatusCode = (int)statusCode
+            StatusCode = (int)statusCode,
+            Data = data,
+            Error = error
         };
 
-        return response;
+        return new OkObjectResult(response);
     }
 }

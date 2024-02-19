@@ -13,7 +13,16 @@ public class UserStore : IUserStore
     {
         _context = context;
     }
-    
+
+    public async Task<IEnumerable<User>> GetAll()
+    {
+        var sql = @"SELECT * FROM Users";
+
+        using var connection = _context.CreateConnection();
+
+        return await connection.QueryAsync<User>(sql);
+    }
+
     public async Task<bool> Create(User user)
     {
         var sql = @"INSERT INTO Users VALUES (@id, @firstName, @lastName, @email, @password, @country, @city, @address, @isActive, @createdAt, @updatedAt, @salt)";

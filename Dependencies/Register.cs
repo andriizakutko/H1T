@@ -13,6 +13,7 @@ public static class Register
     public static IServiceCollection RegisterStores(this IServiceCollection services)
     {
         services.AddTransient<IUserStore, UserStore>();
+        services.AddTransient<IPermissionStore, PermissionStore>();
         
         return services;
     }
@@ -23,6 +24,7 @@ public static class Register
         services.AddTransient<IUserValidationService, UserValidationService>();
         services.AddTransient<IPasswordHashingService, PasswordHashingService>();
         services.AddTransient<IJwtService, JwtService>();
+        services.AddTransient<IAdminService, AdminService>();
         
         return services;
     }
