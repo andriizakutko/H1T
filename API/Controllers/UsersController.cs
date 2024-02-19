@@ -1,7 +1,6 @@
 ﻿using Common.DTOs;
 using Common.Jwt;
 using Domain.Interfaces;
-using Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
