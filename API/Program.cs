@@ -4,7 +4,9 @@ using Common;
 using Common.Options;
 using Common.Results;
 using Dependencies;
+using Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
@@ -35,6 +37,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key))
     };
 });
+
+builder.Services.AddAuthorization();
+builder.Services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
+builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -85,6 +91,20 @@ app.Use(async (context, next) =>
             StatusCode = (int)HttpStatusCode.Unauthorized,
             Data = null,
             Error = new Error("Program.Main", "You are not authorized to view this content")
+        };
+        
+        await context.Response.WriteAsJsonAsync(response);
+    }
+
+    if (context.Response.StatusCode == (int)HttpStatusCode.Forbidden)
+    {
+        context.Response.ContentType = "application/json";
+
+        var response = new Response()
+        {
+            StatusCode = (int)HttpStatusCode.Forbidden,
+            Data = null,
+            Error = new Error("Program.Main", "You don't have permissions to view this content")
         };
         
         await context.Response.WriteAsJsonAsync(response);

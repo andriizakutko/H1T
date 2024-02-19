@@ -1,6 +1,7 @@
 ﻿using Application.Services;
 using Common.Options;
 using Domain.Interfaces;
+using Infrastructure.Authentication;
 using Infrastructure.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,6 +26,7 @@ public static class Register
         services.AddTransient<IPasswordHashingService, PasswordHashingService>();
         services.AddTransient<IJwtService, JwtService>();
         services.AddTransient<IAdminService, AdminService>();
+        services.AddTransient<IPermissionService, PermissionService>();
         
         return services;
     }

@@ -13,20 +13,29 @@ namespace Application.Services;
 public class JwtService : IJwtService
 {
     private readonly JwtOptions _jwtOptions;
+    private readonly IPermissionService _permissionService;
     
-    public JwtService(IOptions<JwtOptions> jwtOptions)
+    public JwtService(IOptions<JwtOptions> jwtOptions, IPermissionService permissionService)
     {
+        _permissionService = permissionService;
         _jwtOptions = jwtOptions.Value;
     }
-    public string Generate(User user)
+    public async Task<string> Generate(User user)
     {
-        var claims = new Claim[]
+        var claims = new List<Claim>
         {
-            new Claim(JwtClaimNames.Id, user.Id.ToString()),
-            new Claim(JwtClaimNames.Email, user.Email),
-            new Claim(JwtClaimNames.FirstName, user.FirstName),
-            new Claim(JwtClaimNames.LastName, user.LastName)
+            new(JwtClaimNames.Id, user.Id.ToString()),
+            new(JwtClaimNames.Email, user.Email),
+            new(JwtClaimNames.FirstName, user.FirstName),
+            new(JwtClaimNames.LastName, user.LastName)
         };
+
+        var permissions = await _permissionService.GetPermissionsAsync(user.Id);
+
+        foreach (var permission in permissions)
+        {
+            claims.Add(new Claim(JwtClaimNames.Permissions, permission));
+        }
 
         var sighingCredentials = new SigningCredentials(
             new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Key)),

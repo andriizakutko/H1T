@@ -2,5 +2,5 @@
 
 public interface IJwtService
 {
-    string Generate(User user);
+    Task<string> Generate(User user);
 }

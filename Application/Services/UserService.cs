@@ -79,7 +79,7 @@ public class UserService : IUserService
 
             return Result<TokenDto>.Success(new TokenDto()
             {
-                Token = _jwtService.Generate(user)
+                Token = await _jwtService.Generate(user)
             });
         }
         catch

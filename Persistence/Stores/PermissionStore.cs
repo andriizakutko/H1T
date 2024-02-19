@@ -69,4 +69,18 @@ public class PermissionStore : IPermissionStore
 
         return await connection.ExecuteAsync(sql, new { userId, permissionId }) > 0;
     }
+
+    public async Task<HashSet<string>> GetUserPermissions(Guid userId)
+    {
+        var sql = @"SELECT name FROM UserPermissions as up
+                    LEFT JOIN Permissions as p
+                    ON up.permissionid = p.id
+                    WHERE up.userid = @userId";
+
+        using var connection = _context.CreateConnection();
+
+        var list = await connection.QueryAsync<string>(sql, new { userId });
+
+        return list.ToHashSet();
+    }
 }
