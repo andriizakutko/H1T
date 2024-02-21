@@ -34,32 +34,23 @@ public class AdminService : IAdminService
         }));
     }
 
-    public async Task<Result> AddUserToPermission(string email, string permissionName)
+    public async Task<Result> AddUserToPermission(User user, string permissionName)
     {
-        var permission = await _permissionStore.GetByName(permissionName);
-
-        if (permission is null)
-        {
-            return Result<bool>.Failure(new Error("AdminService.AddUserToPermission", "Permission was not found"));
-        }
-        
-        var user = await _userStore.GetByEmail(email);
-
-        if (user is null)
-        {
-            return Result.Failure(new Error("AdminService.AddUserToPermission", "User was not found"));
-        }
-
-        var result = await CheckPermission(user, permission);
+        var result = await CheckPermission(user, permissionName);
 
         if (result.Value)
         {
             return Result<bool>.Failure(new Error("AdminService.AddUserToPermission", "Permission has already added"));
         }
 
-        await _permissionStore.AddUserPermission(user.Id, permission.Id);
+        await _permissionStore.AddUserPermission(user, permissionName);
 
         return Result.Success();
+    }
+
+    public async Task<User> GetUser(string email)
+    {
+        return await _userStore.GetByEmail(email);
     }
 
     public async Task<Result<IEnumerable<UsersPermissionsResponse>>> GetUsersPermissions()
@@ -91,13 +82,6 @@ public class AdminService : IAdminService
 
     public async Task<Result> DeleteUserFromPermission(string email, string permissionName)
     {
-        var permission = await _permissionStore.GetByName(permissionName);
-            
-        if (permission is null)
-        {
-            return Result<bool>.Failure(new Error("AdminService.DeleteUserFromPermission", "Permission was not found"));
-        }
-        
         var user = await _userStore.GetByEmail(email);
 
         if (user is null)
@@ -105,14 +89,19 @@ public class AdminService : IAdminService
             return Result.Failure(new Error("AdminService.DeleteUserFromPermission", "User was not found"));
         }
 
-        var isDeleted = await _permissionStore.DeleteUserFromPermission(user.Id, permission.Id);
+        if (user.Permissions.All(p => p.Name != permissionName))
+        {
+            return Result.Failure(new Error("AdminService.DeleteUserFromPermission", "User doesn't have this permission to delete"));
+        }
+
+        var isDeleted = await _permissionStore.DeleteUserFromPermission(user, permissionName);
 
         return isDeleted ? Result.Success() : Result.Failure(new Error("AdminService.DeleteUserFromPermission", "Delete user permission is failed"));
     }
 
-    private async Task<Result<bool>> CheckPermission(User user, Permission permission)
+    private async Task<Result<bool>> CheckPermission(User user, string permissionName)
     {
-        var isAdded = await _permissionStore.IsPermissionAdded(user.Id, permission.Id);
+        var isAdded = await _permissionStore.IsPermissionAdded(user, permissionName);
 
         return Result<bool>.Success(isAdded);
     }

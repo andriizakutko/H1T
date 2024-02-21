@@ -1,52 +1,31 @@
-﻿using Dapper;
-using Domain;
+﻿using Domain;
 using Domain.Interfaces;
 using Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Persistence.Stores;
 
-public class UserStore : IUserStore
+public class UserStore(ApplicationDbContext context) : IUserStore
 {
-    private readonly DatabaseContext _context;
-
-    public UserStore(DatabaseContext context)
-    {
-        _context = context;
-    }
-
     public async Task<IEnumerable<User>> GetAll()
     {
-        var sql = @"SELECT * FROM Users";
-
-        using var connection = _context.CreateConnection();
-
-        return await connection.QueryAsync<User>(sql);
+        return await context.Users.ToListAsync();
     }
 
-    public async Task<bool> Create(User user)
+    public async Task<User> Create(User user)
     {
-        var sql = @"INSERT INTO Users VALUES (@id, @firstName, @lastName, @email, @password, @country, @city, @address, @isActive, @createdAt, @updatedAt, @salt)";
-        
-        using var connection = _context.CreateConnection();
-
-        return await connection.ExecuteAsync(sql, user) > 0;
+        var result = await context.Users.AddAsync(user);
+        await context.SaveChangesAsync();
+        return result.Entity;
     }
 
     public async Task<User> GetByEmail(string email)
     {
-        var sql = @"SELECT * FROM users WHERE email = @email";
-
-        using var connection = _context.CreateConnection();
-
-        return await connection.QuerySingleOrDefaultAsync<User>(sql, new { email });
+        return await context.Users.FirstOrDefaultAsync(u => u.Email == email);
     }
 
     public async Task<bool> IsEmailExist(string email)
     {
-        var sql = @"SELECT COUNT(*) FROM users WHERE Email = @email";
-
-        using var connection = _context.CreateConnection();
-
-        return await connection.ExecuteScalarAsync<int>(sql, new { email }) > 0;
+        return await context.Users.AnyAsync(u => u.Email == email);
     }
 }

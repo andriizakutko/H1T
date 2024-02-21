@@ -4,10 +4,9 @@ namespace Domain.Interfaces;
 
 public interface IPermissionStore
 {
-    Task<Permission> GetByName(string name);
-    Task AddUserPermission(Guid userId, Guid permissionId);
-    Task<bool> IsPermissionAdded(Guid userId, Guid permissionId);
+    Task AddUserPermission(User user, string permissionName);
+    Task<bool> IsPermissionAdded(User user, string permissionName);
     Task<IEnumerable<UserPermissionResult>> GetAll();
-    Task<bool> DeleteUserFromPermission(Guid userId, Guid permissionId);
+    Task<bool> DeleteUserFromPermission(User user, string permissionName);
     Task<HashSet<string>> GetUserPermissions(Guid userId);
 }

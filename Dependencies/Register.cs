@@ -1,8 +1,8 @@
 ﻿using Application.Services;
 using Common.Options;
 using Domain.Interfaces;
-using Infrastructure.Authentication;
 using Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Persistence.Stores;
@@ -31,9 +31,12 @@ public static class Register
         return services;
     }
 
-    public static IServiceCollection RegisterDatabaseContext(this IServiceCollection services)
+    public static IServiceCollection RegisterDbContext(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddSingleton<DatabaseContext>();
+        services.AddDbContext<ApplicationDbContext>(opt =>
+        {
+            opt.UseNpgsql(configuration.GetConnectionString("PosterDb")).UseLazyLoadingProxies();
+        });
         
         return services;
     }

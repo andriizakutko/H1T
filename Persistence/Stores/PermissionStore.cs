@@ -1,86 +1,43 @@
-﻿using Dapper;
-using Domain;
+﻿using Domain;
 using Domain.Interfaces;
 using Domain.StoreResults;
 using Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Persistence.Stores;
 
-public class PermissionStore : IPermissionStore
+public class PermissionStore(ApplicationDbContext context) : IPermissionStore
 {
-    private readonly DatabaseContext _context;
-
-    public PermissionStore(DatabaseContext context)
+    public async Task AddUserPermission(User user, string permissionName)
     {
-        _context = context;
+        user.Permissions ??= new List<Permission>();
+        user.Permissions.Add(new Permission { Name = permissionName });
+        await context.SaveChangesAsync();
     }
 
-    public async Task<Permission> GetByName(string name)
+    public Task<bool> IsPermissionAdded(User user, string permissionName)
     {
-        var sql = @"SELECT * FROM Permissions WHERE Name = @name";
-
-        using var connection = _context.CreateConnection();
-
-        return await connection.QuerySingleOrDefaultAsync<Permission>(sql, new { name });
-    }
-
-    public async Task AddUserPermission(Guid userId, Guid permissionId)
-    {
-        var id = Guid.NewGuid();
-        
-        var sql = @"INSERT INTO UserPermissions (Id, UserId, PermissionId)
-                    VALUES (@id, @userId, @permissionId)";
-
-        using var connection = _context.CreateConnection();
-
-        await connection.ExecuteAsync(sql, new { id, userId, permissionId });
-    }
-
-    public async Task<bool> IsPermissionAdded(Guid userId, Guid permissionId)
-    {
-        var sql = @"SELECT COUNT(*) FROM UserPermissions WHERE UserId = @userId AND PermissionId = @permissionId";
-        
-        using var connection = _context.CreateConnection();
-
-        var count = await connection.ExecuteScalarAsync<int>(sql, new { userId, permissionId });
-
-        return count > 0;
+        return Task.FromResult(user.Permissions is not null && user.Permissions.Any(p => p.Name == permissionName));
     }
 
     public async Task<IEnumerable<UserPermissionResult>> GetAll()
     {
-        var sql = @"SELECT email, name as permissionname
-                    FROM public.userpermissions as up
-                    LEFT JOIN permissions as p
-                    ON up.permissionid = p.id
-                    LEFT JOIN users as u
-                    ON up.userid = u.id";
-        
-        using var connection = _context.CreateConnection();
+        var users = await context.Users.Include(user => user.Permissions).ToListAsync();
 
-        return await connection.QueryAsync<UserPermissionResult>(sql);
+        return (from user in users from permission in user.Permissions select new UserPermissionResult() { Email = user.Email, PermissionName = permission.Name }).ToList();
     }
 
-    public async Task<bool> DeleteUserFromPermission(Guid userId, Guid permissionId)
+    public async Task<bool> DeleteUserFromPermission(User user, string permissionName)
     {
-        var sql = @"DELETE FROM UserPermissions WHERE UserId = @userId AND PermissionId = @permissionId";
-        
-        using var connection = _context.CreateConnection();
-
-        return await connection.ExecuteAsync(sql, new { userId, permissionId }) > 0;
+        var result = user.Permissions.Remove(user.Permissions.First(p => p.Name == permissionName));
+        await context.SaveChangesAsync();
+        return result;
     }
 
     public async Task<HashSet<string>> GetUserPermissions(Guid userId)
     {
-        var sql = @"SELECT name FROM UserPermissions as up
-                    LEFT JOIN Permissions as p
-                    ON up.permissionid = p.id
-                    WHERE up.userid = @userId";
+        var user = await context.Users.Include(user => user.Permissions).FirstAsync(u => u.Id == userId);
 
-        using var connection = _context.CreateConnection();
-
-        var list = await connection.QueryAsync<string>(sql, new { userId });
-
-        return list.ToHashSet();
+        return await Task.FromResult(user.Permissions.Select(x => x.Name).ToHashSet());
     }
 }

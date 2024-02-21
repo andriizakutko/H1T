@@ -2,7 +2,9 @@ using System.Text;
 using API;
 using Common.Options;
 using Dependencies;
+using Domain.Interfaces;
 using Infrastructure.Authentication;
+using Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
@@ -12,7 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.RegisterDatabaseContext();
+builder.Services.RegisterDbContext(builder.Configuration);
 builder.Services.RegisterStores();
 builder.Services.RegisterServices();
 builder.Services.RegisterOptions(builder.Configuration);
@@ -73,6 +75,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+using var scope = app.Services.CreateScope();
+var services = scope.ServiceProvider;
+var context = services.GetService<ApplicationDbContext>();
+var hashingService = services.GetService<IPasswordHashingService>();
+SeedData.Seed(context, hashingService);
 
 app.UseHttpsRedirection();
 
