@@ -1,8 +1,6 @@
-using System.Net;
 using System.Text;
-using Common;
+using API;
 using Common.Options;
-using Common.Results;
 using Dependencies;
 using Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -78,38 +76,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.Use(async (context, next) =>
-{
-    await next();
-     
-    if (context.Response.StatusCode == (int)HttpStatusCode.Unauthorized)
-    {
-        context.Response.ContentType = "application/json";
-
-        var response = new Response()
-        {
-            StatusCode = (int)HttpStatusCode.Unauthorized,
-            Data = null,
-            Error = new Error("Program.Main", "You are not authorized to view this content")
-        };
-        
-        await context.Response.WriteAsJsonAsync(response);
-    }
-
-    if (context.Response.StatusCode == (int)HttpStatusCode.Forbidden)
-    {
-        context.Response.ContentType = "application/json";
-
-        var response = new Response()
-        {
-            StatusCode = (int)HttpStatusCode.Forbidden,
-            Data = null,
-            Error = new Error("Program.Main", "You don't have permissions to view this content")
-        };
-        
-        await context.Response.WriteAsJsonAsync(response);
-    }
-});
+app.UseMiddleware<ErrorHandlingMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();

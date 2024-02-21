@@ -1,6 +1,7 @@
 ﻿using Common.DTOs;
 using Common.Jwt;
 using Domain.Interfaces;
+using Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,6 +17,7 @@ public class UsersController : BaseApiController
         _service = service;
     }
 
+    [HasPermission(Permissions.Admin)]
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterDto registerDto)
     {
