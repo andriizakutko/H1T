@@ -10,7 +10,7 @@ public class Product : BaseEntity
     public float Price { get; set; }
     public int? Discount { get; set; }
     public string Type { get; set; }
-    public string SubType { get; set; }
+    public string Category { get; set; }
     public string Gender { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
