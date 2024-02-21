@@ -9,8 +9,8 @@ public class Product : BaseEntity
     public float? OldPrice { get; set; }
     public float Price { get; set; }
     public int? Discount { get; set; }
-    public string Type { get; set; }
-    public string Category { get; set; }
+    public virtual ProductCategory Category { get; set; }
+    public virtual ProductType Type { get; set; }
     public string Gender { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }

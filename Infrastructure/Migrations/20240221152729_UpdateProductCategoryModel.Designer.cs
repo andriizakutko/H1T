@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240221152729_UpdateProductCategoryModel")]
+    partial class UpdateProductCategoryModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -69,8 +72,8 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("CategoryId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("Category")
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -99,17 +102,13 @@ namespace Infrastructure.Migrations
                     b.Property<string>("SubName")
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("TypeId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("Type")
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CategoryId");
-
-                    b.HasIndex("TypeId");
 
                     b.ToTable("Products");
                 });
@@ -198,21 +197,6 @@ namespace Infrastructure.Migrations
                     b.HasOne("Domain.User", null)
                         .WithMany("Permissions")
                         .HasForeignKey("UserId");
-                });
-
-            modelBuilder.Entity("Domain.Product", b =>
-                {
-                    b.HasOne("Domain.ProductCategory", "Category")
-                        .WithMany()
-                        .HasForeignKey("CategoryId");
-
-                    b.HasOne("Domain.ProductType", "Type")
-                        .WithMany()
-                        .HasForeignKey("TypeId");
-
-                    b.Navigation("Category");
-
-                    b.Navigation("Type");
                 });
 
             modelBuilder.Entity("Domain.Product", b =>
