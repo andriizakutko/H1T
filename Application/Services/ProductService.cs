@@ -48,24 +48,4 @@ public class ProductService(
             return Result.Failure(new Error("ProductService.Create", "Product service error"));
         }
     }
-
-    public Task<Result<ICollection<Product>>> Get(string category = null, string type = null)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<Result<Product>> GetById(Guid id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<Result> Update(Guid id, ProductDto productToUpdate)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<Result> Delete(Guid id)
-    {
-        throw new NotImplementedException();
-    }
 }
