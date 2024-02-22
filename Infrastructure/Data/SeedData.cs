@@ -1,10 +1,9 @@
 ﻿using Domain;
-using Domain.Enums;
-using Domain.Interfaces;
+using Infrastructure.PasswordHashing;
 
 namespace Infrastructure.Data;
 
-public class SeedData
+public static class SeedData
 {
     public static void Seed(ApplicationDbContext context, IPasswordHashingService passwordHashingService)
     {
@@ -27,27 +26,6 @@ public class SeedData
             new() { Name = Authentication.Permissions.Admin },
             new() { Name = Authentication.Permissions.Moderator },
         };
-
-        var productTypes = new List<ProductType>()
-        {
-            new() { Name = ProductTypes.Outerwear.ToString() },
-            new() { Name = ProductTypes.Underwear.ToString() },
-            new() { Name = ProductTypes.Gloves.ToString() },
-            new() { Name = ProductTypes.Hats.ToString() },
-            new() { Name = ProductTypes.Hoodie.ToString() },
-            new() { Name = ProductTypes.Trousers.ToString() },
-            new() { Name = ProductTypes.TShirts.ToString() },
-        };
-        
-        context.ProductTypes.AddRange(productTypes);
-        
-        var productCategories = new List<ProductCategory>()
-        {
-            new() { Name = ProductCategories.Male.ToString() },
-            new() { Name = ProductCategories.Female.ToString() }
-        };
-        
-        context.ProductCategories.AddRange(productCategories);
 
         context.SaveChanges();
     }

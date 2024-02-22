@@ -4,7 +4,7 @@ namespace Infrastructure.Authentication;
 
 public sealed class HasPermissionAttribute : AuthorizeAttribute
 {
-    public HasPermissionAttribute(string permission) : base(policy: permission.ToLower())
+    public HasPermissionAttribute(string permission) : base(policy: permission)
     {
         
     }

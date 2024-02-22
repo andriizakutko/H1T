@@ -1,0 +1,16 @@
+[
+  {
+    "category": "Male",
+    "types": [
+      "Outerwear",
+      "Underwear"
+    ]
+  },
+  {
+    "category": "Female",
+    "types": [
+      "Outerwear",
+      "Underwear"
+    ]
+  }
+]

@@ -1,5 +1,5 @@
-﻿using Common.Requests;
-using Domain.Interfaces;
+﻿using Application.Interfaces;
+using Common.Requests;
 using Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,38 +9,31 @@ namespace API.Controllers;
 [HasPermission(Permissions.Admin)]
 [Authorize]
 [Route("api/admin")]
-public class AdminController : BaseApiController
+public class AdminController(IAdminService adminService) : BaseApiController
 {
-    private readonly IAdminService _adminService;
-
-    public AdminController(IAdminService adminService)
-    {
-        _adminService = adminService;
-    }
-
     [HttpGet("get-users")]
     public async Task<IActionResult> GetAll()
     {
-        return HandleResult(await _adminService.GetUsers());
+        return HandleResult(await adminService.GetUsers());
     }
 
     [HttpPost("add-user-to-permission")]
     public async Task<IActionResult> AddUserToPermission(AddUserToPermissionRequest addUserToPermissionRequest)
     {
         return HandleResult(
-            await _adminService.AddUserToPermission(await _adminService.GetUser(addUserToPermissionRequest.Email), addUserToPermissionRequest.PermissionName));
+            await adminService.AddUserToPermission(await adminService.GetUser(addUserToPermissionRequest.Email), addUserToPermissionRequest.PermissionName));
     }
 
     [HttpGet("get-users-permissions")]
     public async Task<IActionResult> GetUsersPermissions()
     {
-        return HandleResult(await _adminService.GetUsersPermissions());
+        return HandleResult(await adminService.GetUsersPermissions());
     }
     
     [HttpPost("delete-user-from-permission")]
     public async Task<IActionResult> DeleteUserFromPermission(DeleteUserFromPermissionRequest deleteUserFromPermissionRequest)
     {
         return HandleResult(
-            await _adminService.DeleteUserFromPermission(deleteUserFromPermissionRequest.Email, deleteUserFromPermissionRequest.PermissionName));
+            await adminService.DeleteUserFromPermission(deleteUserFromPermissionRequest.Email, deleteUserFromPermissionRequest.PermissionName));
     }
 }

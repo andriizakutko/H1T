@@ -1,25 +1,20 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Application.Interfaces;
 using Common.Jwt;
 using Common.Options;
 using Domain;
-using Domain.Interfaces;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Application.Services;
 
-public class JwtService : IJwtService
+public class JwtService(IOptions<JwtOptions> jwtOptions, IPermissionService permissionService)
+    : IJwtService
 {
-    private readonly JwtOptions _jwtOptions;
-    private readonly IPermissionService _permissionService;
-    
-    public JwtService(IOptions<JwtOptions> jwtOptions, IPermissionService permissionService)
-    {
-        _permissionService = permissionService;
-        _jwtOptions = jwtOptions.Value;
-    }
+    private readonly JwtOptions _jwtOptions = jwtOptions.Value;
+
     public async Task<string> Generate(User user)
     {
         var claims = new List<Claim>
@@ -30,7 +25,7 @@ public class JwtService : IJwtService
             new(JwtClaimNames.LastName, user.LastName)
         };
 
-        var permissions = await _permissionService.GetPermissionsAsync(user.Id);
+        var permissions = await permissionService.GetPermissionsAsync(user.Id);
 
         foreach (var permission in permissions)
         {

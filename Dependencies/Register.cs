@@ -1,20 +1,23 @@
-﻿using Application.Services;
+﻿using Application.Interfaces;
+using Application.Services;
 using Common.Options;
-using Domain.Interfaces;
+using Infrastructure.Cache;
 using Infrastructure.Data;
+using Infrastructure.PasswordHashing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Persistence.Stores;
+using Persistence.Interfaces;
+using Persistence.Repositories;
 
 namespace Dependencies;
 
 public static class Register
 {
-    public static IServiceCollection RegisterStores(this IServiceCollection services)
+    public static IServiceCollection RegisterRepositories(this IServiceCollection services)
     {
-        services.AddTransient<IUserStore, UserStore>();
-        services.AddTransient<IPermissionStore, PermissionStore>();
+        services.AddTransient<IUserRepository, UserRepository>();
+        services.AddTransient<IPermissionRepository, PermissionRepository>();
         
         return services;
     }
@@ -27,6 +30,8 @@ public static class Register
         services.AddTransient<IJwtService, JwtService>();
         services.AddTransient<IAdminService, AdminService>();
         services.AddTransient<IPermissionService, PermissionService>();
+
+        services.AddSingleton<ICacheProvider, CacheProvider>();
         
         return services;
     }

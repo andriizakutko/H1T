@@ -1,8 +1,9 @@
-﻿using Domain.StoreResults;
+﻿using Domain;
+using Domain.StoreResults;
 
-namespace Domain.Interfaces;
+namespace Persistence.Interfaces;
 
-public interface IPermissionStore
+public interface IPermissionRepository
 {
     Task AddUserPermission(User user, string permissionName);
     Task<bool> IsPermissionAdded(User user, string permissionName);

@@ -1,7 +1,7 @@
 ﻿using Common.DTOs;
 using Common.Results;
 
-namespace Domain.Interfaces;
+namespace Application.Interfaces;
 
 public interface IUserService
 {

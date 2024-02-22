@@ -1,8 +1,9 @@
 ﻿using Common.DTOs;
 using Common.Responses;
 using Common.Results;
+using Domain;
 
-namespace Domain.Interfaces;
+namespace Application.Interfaces;
 
 public interface IAdminService
 {

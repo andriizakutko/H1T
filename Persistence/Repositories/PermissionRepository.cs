@@ -1,12 +1,12 @@
 ﻿using Domain;
-using Domain.Interfaces;
 using Domain.StoreResults;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Persistence.Interfaces;
 
-namespace Persistence.Stores;
+namespace Persistence.Repositories;
 
-public class PermissionStore(ApplicationDbContext context) : IPermissionStore
+public class PermissionRepository(ApplicationDbContext context) : IPermissionRepository
 {
     public async Task AddUserPermission(User user, string permissionName)
     {

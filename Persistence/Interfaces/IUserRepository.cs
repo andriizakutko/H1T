@@ -1,6 +1,8 @@
-﻿namespace Domain.Interfaces;
+﻿using Domain;
 
-public interface IUserStore
+namespace Persistence.Interfaces;
+
+public interface IUserRepository
 {
     Task<IEnumerable<User>> GetAll();
     Task<User> Create(User user);

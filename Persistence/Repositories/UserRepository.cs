@@ -1,11 +1,11 @@
 ﻿using Domain;
-using Domain.Interfaces;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Persistence.Interfaces;
 
-namespace Persistence.Stores;
+namespace Persistence.Repositories;
 
-public class UserStore(ApplicationDbContext context) : IUserStore
+public class UserRepository(ApplicationDbContext context) : IUserRepository
 {
     public async Task<IEnumerable<User>> GetAll()
     {

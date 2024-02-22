@@ -29,4 +29,8 @@
       <ProjectReference Include="..\Dependencies\Dependencies.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Include="static\categoryTypes.json" />
+    </ItemGroup>
+
 </Project>

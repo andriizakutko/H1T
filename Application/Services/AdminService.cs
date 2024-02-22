@@ -1,25 +1,18 @@
-﻿using Common.DTOs;
+﻿using Application.Interfaces;
+using Common.DTOs;
 using Common.Responses;
 using Common.Results;
 using Domain;
-using Domain.Interfaces;
+using Persistence.Interfaces;
 
 namespace Application.Services;
 
-public class AdminService : IAdminService
+public class AdminService(IUserRepository userRepository, IPermissionRepository permissionRepository)
+    : IAdminService
 {
-    private readonly IUserStore _userStore;
-    private readonly IPermissionStore _permissionStore;
-
-    public AdminService(IUserStore userStore, IPermissionStore permissionStore)
-    {
-        _userStore = userStore;
-        _permissionStore = permissionStore;
-    }
-
     public async Task<Result<IEnumerable<UserDto>>> GetUsers()
     {
-        var users = await _userStore.GetAll();
+        var users = await userRepository.GetAll();
 
         return Result<IEnumerable<UserDto>>.Success(users.Select(u => new UserDto()
         {
@@ -43,19 +36,19 @@ public class AdminService : IAdminService
             return Result<bool>.Failure(new Error("AdminService.AddUserToPermission", "Permission has already added"));
         }
 
-        await _permissionStore.AddUserPermission(user, permissionName);
+        await permissionRepository.AddUserPermission(user, permissionName);
 
         return Result.Success();
     }
 
     public async Task<User> GetUser(string email)
     {
-        return await _userStore.GetByEmail(email);
+        return await userRepository.GetByEmail(email);
     }
 
     public async Task<Result<IEnumerable<UsersPermissionsResponse>>> GetUsersPermissions()
     {
-        var userPermissions = await _permissionStore.GetAll();
+        var userPermissions = await permissionRepository.GetAll();
 
         var permissionsDictionary = userPermissions.GroupBy(x => x.Email).ToDictionary(x => x.Key, y => y.ToArray());
 
@@ -82,7 +75,7 @@ public class AdminService : IAdminService
 
     public async Task<Result> DeleteUserFromPermission(string email, string permissionName)
     {
-        var user = await _userStore.GetByEmail(email);
+        var user = await userRepository.GetByEmail(email);
 
         if (user is null)
         {
@@ -94,14 +87,14 @@ public class AdminService : IAdminService
             return Result.Failure(new Error("AdminService.DeleteUserFromPermission", "User doesn't have this permission to delete"));
         }
 
-        var isDeleted = await _permissionStore.DeleteUserFromPermission(user, permissionName);
+        var isDeleted = await permissionRepository.DeleteUserFromPermission(user, permissionName);
 
         return isDeleted ? Result.Success() : Result.Failure(new Error("AdminService.DeleteUserFromPermission", "Delete user permission is failed"));
     }
 
     private async Task<Result<bool>> CheckPermission(User user, string permissionName)
     {
-        var isAdded = await _permissionStore.IsPermissionAdded(user, permissionName);
+        var isAdded = await permissionRepository.IsPermissionAdded(user, permissionName);
 
         return Result<bool>.Success(isAdded);
     }

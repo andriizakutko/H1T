@@ -1,6 +1,6 @@
-﻿namespace Domain;
+﻿namespace Common.DTOs;
 
-public class Product : BaseEntity
+public class ProductDto
 {
     public string Name { get; set; }
     public string SubName { get; set; }
@@ -12,7 +12,5 @@ public class Product : BaseEntity
     public string Category { get; set; }
     public string Type { get; set; }
     public string Gender { get; set; }
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    public DateTime? UpdatedAt { get; set; }
-    public virtual ICollection<Image> Images { get; set; }
+    public string[] ImageUrls { get; set; }
 }

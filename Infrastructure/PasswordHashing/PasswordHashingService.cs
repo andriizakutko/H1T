@@ -1,8 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
-using Domain.Interfaces;
 
-namespace Application.Services;
+namespace Infrastructure.PasswordHashing;
 
 public class PasswordHashingService : IPasswordHashingService
 {

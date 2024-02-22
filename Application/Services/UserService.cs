@@ -1,13 +1,15 @@
-﻿using Common.DTOs;
+﻿using Application.Interfaces;
+using Common.DTOs;
 using Common.Results;
 using Domain;
-using Domain.Interfaces;
 using Infrastructure.Authentication;
+using Infrastructure.PasswordHashing;
+using Persistence.Interfaces;
 
 namespace Application.Services;
 
 public class UserService(
-        IUserStore store,
+        IUserRepository repository,
         IUserValidationService validationService,
         IPasswordHashingService passwordHashingService,
         IJwtService jwtService,
@@ -37,7 +39,7 @@ public class UserService(
                 Address = registerDto.Address
             };
         
-            var createdUser = await store.Create(user);
+            var createdUser = await repository.Create(user);
 
             if (createdUser is null) return Result.Failure(new Error("UserService.Register", "User was not created"));
             
@@ -61,7 +63,7 @@ public class UserService(
                 return Result<TokenDto>.Failure(validationResult.Error);
             }
 
-            var user = await store.GetByEmail(loginDto.Email);
+            var user = await repository.GetByEmail(loginDto.Email);
 
             return Result<TokenDto>.Success(new TokenDto()
             {
@@ -76,7 +78,7 @@ public class UserService(
 
     public async Task<Result<UserDto>> GetUser(string email)
     {
-        var user = await store.GetByEmail(email);
+        var user = await repository.GetByEmail(email);
 
         if (user is null) return Result<UserDto>.Failure(new Error("UserService.GetUser", "User was not found"));
 

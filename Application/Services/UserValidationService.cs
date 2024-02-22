@@ -1,26 +1,19 @@
-﻿
+﻿using Application.Interfaces;
 using Common.DTOs;
 using Common.Results;
-using Domain.Interfaces;
+using Infrastructure.PasswordHashing;
+using Persistence.Interfaces;
 
 namespace Application.Services;
 
-public class UserValidationService : IUserValidationService
+public class UserValidationService(IUserRepository repository, IPasswordHashingService passwordHashingService)
+    : IUserValidationService
 {
-    private readonly IUserStore _store;
-    private readonly IPasswordHashingService _passwordHashingService;
-
-    public UserValidationService(IUserStore store, IPasswordHashingService passwordHashingService)
-    {
-        _store = store;
-        _passwordHashingService = passwordHashingService;
-    }
-
     public async Task<Result> ValidateRegisterModel(RegisterDto registerDto)
     {
         try
         {
-            if (await _store.IsEmailExist(registerDto.Email))
+            if (await repository.IsEmailExist(registerDto.Email))
             {
                 return Result.Failure(new Error("UserValidationService.ValidateRegisterModel", "User already exists with this email"));
             }
@@ -37,14 +30,14 @@ public class UserValidationService : IUserValidationService
     {
         try
         {
-            if (!await _store.IsEmailExist(loginDto.Email))
+            if (!await repository.IsEmailExist(loginDto.Email))
             {
                 return Result.Failure(new Error("UserValidationService.ValidateLoginModel", "Incorrect credentials"));
             }
 
-            var user = await _store.GetByEmail(loginDto.Email);
+            var user = await repository.GetByEmail(loginDto.Email);
 
-            if (!_passwordHashingService.VerifyPassword(loginDto.Password, user.Password, user.Salt))
+            if (!passwordHashingService.VerifyPassword(loginDto.Password, user.Password, user.Salt))
             {
                 return Result.Failure(new Error("UserValidationService.ValidateLoginModel", "Incorrect credentials"));
             }
