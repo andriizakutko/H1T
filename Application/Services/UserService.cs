@@ -82,6 +82,8 @@ public class UserService(
 
         if (user is null) return Result<UserInfoDto>.Failure(new Error("UserService.GetUser", "User was not found"));
 
+        var userPermissions = await repository.GetUserPermissions(email);
+
         return Result<UserInfoDto>.Success(new UserInfoDto()
         {
             Id = user.Id,
@@ -92,7 +94,7 @@ public class UserService(
             City = user.City,
             Address = user.Address,
             IsActive = user.IsActive,
-            Permissions = user.Permissions.Select(p => p.Name).ToArray()
+            Permissions = userPermissions.Select(p => p.Permission.Name).ToArray()
         });
     }
 

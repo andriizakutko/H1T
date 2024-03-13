@@ -2,8 +2,8 @@
 
 public static class Permissions
 {
-    public const string User = "user";
-    public const string Moderator = "moderator";
-    public const string Admin = "admin";
-    public const string SysAdmin = "sys-admin";
+    public const string User = "User";
+    public const string Moderator = "Moderator";
+    public const string Admin = "Admin";
+    public const string SysAdmin = "SysAdmin";
 }

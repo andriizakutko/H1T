@@ -8,36 +8,52 @@ namespace Persistence.Repositories;
 
 public class PermissionRepository(ApplicationDbContext context) : IPermissionRepository
 {
+    public async Task<Permission> GetByName(string permissionName)
+    {
+        return await context.Permissions.FirstOrDefaultAsync(x => x.Name == permissionName);
+    }
+
     public async Task AddUserPermission(User user, string permissionName)
     {
-        user.Permissions ??= new List<Permission>();
-        user.Permissions.Add(new Permission { Name = permissionName });
+        await context.UserPermissions.AddAsync(new UserPermission()
+        {
+            User = user, Permission = await GetByName(permissionName)
+        });
         await context.SaveChangesAsync();
     }
 
-    public Task<bool> IsPermissionAdded(User user, string permissionName)
+    public async Task<bool> IsPermissionAdded(User user, string permissionName)
     {
-        return Task.FromResult(user.Permissions is not null && user.Permissions.Any(p => p.Name == permissionName));
+        var userPermissions = await context.UserPermissions.Where(x => x.User.Email == user.Email)
+            .Include(userPermission => userPermission.Permission).ToListAsync();
+        return userPermissions.Any(p => p.Permission.Name == permissionName);
     }
 
     public async Task<IEnumerable<UserPermissionResult>> GetAll()
     {
-        var users = await context.Users.Include(user => user.Permissions).ToListAsync();
+        var userPermissions = await context.UserPermissions.ToListAsync();
 
-        return (from user in users from permission in user.Permissions select new UserPermissionResult() { Email = user.Email, PermissionName = permission.Name }).ToList();
+        return (from userPermission in userPermissions select new UserPermissionResult() { Email = userPermission.User.Email, PermissionName = userPermission.Permission.Name }).ToList();
     }
 
     public async Task<bool> DeleteUserFromPermission(User user, string permissionName)
     {
-        var result = user.Permissions.Remove(user.Permissions.First(p => p.Name == permissionName));
+        var userPermissionToDelete =
+            await context.UserPermissions.Where(x => x.User.Email == user.Email && x.Permission.Name == permissionName).FirstOrDefaultAsync();
+        if (userPermissionToDelete is null)
+        {
+            return false;
+        }
+        context.UserPermissions.Remove(userPermissionToDelete);
         await context.SaveChangesAsync();
-        return result;
+        return true;
     }
 
     public async Task<HashSet<string>> GetUserPermissions(Guid userId)
     {
-        var user = await context.Users.Include(user => user.Permissions).FirstAsync(u => u.Id == userId);
+        var userPermissions = await context.UserPermissions.Where(u => u.User.Id == userId)
+            .Include(userPermission => userPermission.Permission).ToListAsync();
 
-        return await Task.FromResult(user.Permissions.Select(x => x.Name).ToHashSet());
+        return await Task.FromResult(userPermissions.Select(x => x.Permission.Name).ToHashSet());
     }
 }

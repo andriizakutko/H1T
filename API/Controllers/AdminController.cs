@@ -31,7 +31,7 @@ public class AdminController(IAdminService adminService) : BaseApiController
     }
     
     [HasPermission(Permissions.SysAdmin)]
-    [HttpPost("delete-user-from-permission")]
+    [HttpDelete("delete-user-from-permission")]
     public async Task<IActionResult> DeleteUserFromPermission(DeleteUserFromPermissionRequest deleteUserFromPermissionRequest)
     {
         return HandleResult(

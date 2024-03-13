@@ -97,7 +97,9 @@ public class AdminService(
             return Result.Failure(new Error("AdminService.DeleteUserFromPermission", "User was not found"));
         }
 
-        if (user.Permissions.All(p => p.Name != permissionName))
+        var userPermissions = await userRepository.GetUserPermissions(email);
+
+        if (userPermissions.All(p => p.Permission.Name != permissionName))
         {
             return Result.Failure(new Error("AdminService.DeleteUserFromPermission", "User doesn't have this permission to delete"));
         }

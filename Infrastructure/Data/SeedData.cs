@@ -1,17 +1,18 @@
 ﻿using Common.Options;
 using Domain;
 using Infrastructure.PasswordHashing;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Data;
 
 public static class SeedData
 {
-    public static void Seed(
+    public static async Task Seed(
         ApplicationDbContext context, 
         IPasswordHashingService passwordHashingService, 
         AdminOptions options)
     {
-        if (context.Users.Any()) return;
+        if (await context.Users.AnyAsync()) return;
         
         var user = new User()
         {
@@ -22,16 +23,37 @@ public static class SeedData
             Salt = salt,
         };
 
-        var result = context.Users.Add(user);
+        await context.Users.AddAsync(user);
 
-        result.Entity.Permissions = new List<Permission>()
+        await context.SaveChangesAsync();
+
+        var userPermission = new Permission() { Name = Authentication.Permissions.User };
+        var moderatorPermission = new Permission() { Name = Authentication.Permissions.Moderator };
+        var adminPermission = new Permission() { Name = Authentication.Permissions.Admin };
+        var sysAdminPermission = new Permission() { Name = Authentication.Permissions.SysAdmin };
+
+        var permissions = new List<Permission>
         {
-            new() { Name = Authentication.Permissions.User },
-            new() { Name = Authentication.Permissions.Admin },
-            new() { Name = Authentication.Permissions.Moderator },
-            new() { Name = Authentication.Permissions.SysAdmin }
+            userPermission,
+            moderatorPermission,
+            adminPermission,
+            sysAdminPermission
+        };
+        
+        await context.Permissions.AddRangeAsync(permissions);
+
+        await context.SaveChangesAsync();
+
+        var userPermissions = new List<UserPermission>()
+        {
+            new() { User = user, Permission = userPermission },
+            new() { User = user, Permission = moderatorPermission },
+            new() { User = user, Permission = adminPermission },
+            new() { User = user, Permission = sysAdminPermission },
         };
 
-        context.SaveChanges();
+        await context.UserPermissions.AddRangeAsync(userPermissions);
+
+        await context.SaveChangesAsync();
     }
 }
