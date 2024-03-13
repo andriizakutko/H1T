@@ -1,20 +1,30 @@
 ﻿using Application.Interfaces;
 using Common.DTOs;
+using Common.Options;
 using Common.Responses;
 using Common.Results;
 using Domain;
+using Infrastructure.Extensions;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 using Persistence.Interfaces;
 
 namespace Application.Services;
 
-public class AdminService(IUserRepository userRepository, IPermissionRepository permissionRepository)
+public class AdminService(
+        IUserRepository userRepository, 
+        IPermissionRepository permissionRepository,
+        IOptions<AdminOptions> options,
+        IHttpContextAccessor contextAccessor)
     : IAdminService
 {
     public async Task<Result<IEnumerable<UserDto>>> GetUsers()
     {
         var users = await userRepository.GetAll();
-
-        return Result<IEnumerable<UserDto>>.Success(users.Select(u => new UserDto()
+        
+        return Result<IEnumerable<UserDto>>.Success(users
+            .Where(u => u.Email != options.Value.Email && u.Email != contextAccessor.GetEmail())
+            .Select(u => new UserDto()
         {
             Id = u.Id,
             FirstName = u.FirstName,
@@ -29,11 +39,16 @@ public class AdminService(IUserRepository userRepository, IPermissionRepository 
 
     public async Task<Result> AddUserToPermission(User user, string permissionName)
     {
+        if (user is null)
+        {
+            return Result.Failure(new Error("AdminService.AddUserToPermission", "User doesn't exist"));
+        }
+        
         var result = await CheckPermission(user, permissionName);
 
         if (result.Value)
         {
-            return Result<bool>.Failure(new Error("AdminService.AddUserToPermission", "Permission has already added"));
+            return Result.Failure(new Error("AdminService.AddUserToPermission", "Permission has already added"));
         }
 
         await permissionRepository.AddUserPermission(user, permissionName);

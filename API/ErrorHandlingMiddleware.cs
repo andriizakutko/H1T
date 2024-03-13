@@ -4,18 +4,11 @@ using Common.Results;
 
 namespace API;
 
-public class ErrorHandlingMiddleware
+public class ErrorHandlingMiddleware(RequestDelegate next)
 {
-    private readonly RequestDelegate _next;
-
-    public ErrorHandlingMiddleware(RequestDelegate next)
-    {
-        _next = next;
-    }
-
     public async Task Invoke(HttpContext context)
     {
-        await _next(context);
+        await next(context);
         
         if (context.Response.StatusCode == (int)HttpStatusCode.Unauthorized)
         {
@@ -25,7 +18,7 @@ public class ErrorHandlingMiddleware
             {
                 StatusCode = (int)HttpStatusCode.Unauthorized,
                 Data = null,
-                Error = new Error("Error.Unauthorized", "You are not authorized to work with this action")
+                Error = new Error("Error.Unauthorized", "You are not authorized")
             };
         
             await context.Response.WriteAsJsonAsync(response);

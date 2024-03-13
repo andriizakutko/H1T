@@ -21,7 +21,7 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
 
     public async Task<User> GetByEmail(string email)
     {
-        return await context.Users.FirstOrDefaultAsync(u => u.Email == email);
+        return await context.Users.Include(x => x.Permissions).FirstOrDefaultAsync(u => u.Email == email);
     }
 
     public async Task<bool> IsEmailExist(string email)

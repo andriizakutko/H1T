@@ -1,51 +1,24 @@
-using System.Text;
 using API;
 using Common.Options;
 using Dependencies;
-using Domain;
-using Infrastructure.Authentication;
-using Infrastructure.Cache;
 using Infrastructure.Data;
 using Infrastructure.PasswordHashing;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.RegisterDbContext(builder.Configuration);
 builder.Services.RegisterRepositories();
 builder.Services.RegisterServices();
+builder.Services.RegisterProviders();
 builder.Services.RegisterOptions(builder.Configuration);
+builder.Services.RegisterAuthentication(builder.Configuration);
+builder.Services.RegisterAuthorization();
 
-var jwtOptions = new JwtOptions();
-builder.Configuration.GetSection("Jwt").Bind(jwtOptions);
-
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
-{
-    options.RequireHttpsMetadata = false;
-    options.SaveToken = true;
-    options.TokenValidationParameters = new TokenValidationParameters()
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidAudience = jwtOptions.Audience,
-        ValidIssuer = jwtOptions.Issuer,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key))
-    };
-});
-
-builder.Services.AddAuthorization();
-builder.Services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
-builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
-
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(opt =>
 {
@@ -83,9 +56,8 @@ var services = scope.ServiceProvider;
 
 var context = services.GetService<ApplicationDbContext>();
 var hashingService = services.GetService<IPasswordHashingService>();
-SeedData.Seed(context, hashingService);
-
-services.GetService<ICacheProvider>().Init();
+var adminOptions = services.GetService<IOptions<AdminOptions>>().Value;
+SeedData.Seed(context, hashingService, adminOptions);
 
 app.UseHttpsRedirection();
 

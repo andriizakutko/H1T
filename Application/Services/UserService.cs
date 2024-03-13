@@ -76,13 +76,13 @@ public class UserService(
         }
     }
 
-    public async Task<Result<UserDto>> GetUser(string email)
+    public async Task<Result<UserInfoDto>> GetUser(string email)
     {
         var user = await repository.GetByEmail(email);
 
-        if (user is null) return Result<UserDto>.Failure(new Error("UserService.GetUser", "User was not found"));
+        if (user is null) return Result<UserInfoDto>.Failure(new Error("UserService.GetUser", "User was not found"));
 
-        return Result<UserDto>.Success(new UserDto()
+        return Result<UserInfoDto>.Success(new UserInfoDto()
         {
             Id = user.Id,
             FirstName = user.FirstName,
@@ -91,7 +91,8 @@ public class UserService(
             Country = user.Country,
             City = user.City,
             Address = user.Address,
-            IsActive = user.IsActive
+            IsActive = user.IsActive,
+            Permissions = user.Permissions.Select(p => p.Name).ToArray()
         });
     }
 

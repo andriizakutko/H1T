@@ -7,5 +7,5 @@ public interface IUserService
 {
     Task<Result> Register(RegisterDto registerDto);
     Task<Result<TokenDto>> Login(LoginDto loginDto);
-    Task<Result<UserDto>> GetUser(string email);
+    Task<Result<UserInfoDto>> GetUser(string email);
 }

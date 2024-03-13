@@ -2,5 +2,5 @@
 
 public class CacheKeys
 {
-    public const string ProductCategoryTypes = "product-category-types";
+    
 }

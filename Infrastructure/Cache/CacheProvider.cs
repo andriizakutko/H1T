@@ -32,24 +32,6 @@ public class CacheProvider : ICacheProvider
         }
     }
 
-    public void Init()
-    {
-        try
-        {
-            InitCategoryTypes();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex.Message);
-            throw;
-        }
-    }
-
-    private void InitCategoryTypes()
-    {
-        Set(CacheKeys.ProductCategoryTypes, CacheData.GetCategoryTypes());
-    }
-
     public T Get<T>(string key)
     {
         try

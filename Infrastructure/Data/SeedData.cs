@@ -1,20 +1,24 @@
-﻿using Domain;
+﻿using Common.Options;
+using Domain;
 using Infrastructure.PasswordHashing;
 
 namespace Infrastructure.Data;
 
 public static class SeedData
 {
-    public static void Seed(ApplicationDbContext context, IPasswordHashingService passwordHashingService)
+    public static void Seed(
+        ApplicationDbContext context, 
+        IPasswordHashingService passwordHashingService, 
+        AdminOptions options)
     {
         if (context.Users.Any()) return;
         
         var user = new User()
         {
-            FirstName = "admin",
-            LastName = "admin",
-            Email = "admin@test.com",
-            Password = passwordHashingService.HashPassword("Pa$$w0rd", out var salt),
+            FirstName = options.FirstName,
+            LastName = options.LastName,
+            Email = options.Email,
+            Password = passwordHashingService.HashPassword(options.Password, out var salt),
             Salt = salt,
         };
 
@@ -25,6 +29,7 @@ public static class SeedData
             new() { Name = Authentication.Permissions.User },
             new() { Name = Authentication.Permissions.Admin },
             new() { Name = Authentication.Permissions.Moderator },
+            new() { Name = Authentication.Permissions.SysAdmin }
         };
 
         context.SaveChanges();
