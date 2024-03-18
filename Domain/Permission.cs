@@ -1,4 +1,6 @@
-﻿namespace Domain;
+﻿using Domain.Abstract;
+
+namespace Domain;
 
 public class Permission : BaseEntity
 {

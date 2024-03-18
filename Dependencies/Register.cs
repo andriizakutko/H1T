@@ -23,6 +23,7 @@ public static class Register
     {
         services.AddTransient<IUserRepository, UserRepository>();
         services.AddTransient<IPermissionRepository, PermissionRepository>();
+        services.AddTransient<ITransportRepository, TransportRepository>();
     }
     
     public static void RegisterServices(this IServiceCollection services)
@@ -33,6 +34,7 @@ public static class Register
         services.AddTransient<IJwtService, JwtService>();
         services.AddTransient<IAdminService, AdminService>();
         services.AddTransient<IPermissionService, PermissionService>();
+        services.AddTransient<ITransportService, TransportService>();
     }
 
     public static void RegisterProviders(this IServiceCollection services)

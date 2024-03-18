@@ -61,17 +61,17 @@ public class AdminService(
         return await userRepository.GetByEmail(email);
     }
 
-    public async Task<Result<IEnumerable<UsersPermissionsResponse>>> GetUsersPermissions()
+    public async Task<Result<IEnumerable<UsersPermissionsResult>>> GetUsersPermissions()
     {
         var userPermissions = await permissionRepository.GetAll();
 
         var permissionsDictionary = userPermissions.GroupBy(x => x.Email).ToDictionary(x => x.Key, y => y.ToArray());
 
-        var resultList = new List<UsersPermissionsResponse>();
+        var resultList = new List<UsersPermissionsResult>();
 
         foreach (var item in permissionsDictionary)
         {
-            var userPermissionsResponseValue = new UsersPermissionsResponse()
+            var userPermissionsResponseValue = new UsersPermissionsResult()
             {
                 Email = item.Key,
                 Permissions = new List<string>()
@@ -85,7 +85,7 @@ public class AdminService(
             resultList.Add(userPermissionsResponseValue);
         }
 
-        return Result<IEnumerable<UsersPermissionsResponse>>.Success(resultList);
+        return Result<IEnumerable<UsersPermissionsResult>>.Success(resultList);
     }
 
     public async Task<Result> DeleteUserFromPermission(string email, string permissionName)

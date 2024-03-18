@@ -57,7 +57,8 @@ var services = scope.ServiceProvider;
 var context = services.GetService<ApplicationDbContext>();
 var hashingService = services.GetService<IPasswordHashingService>();
 var adminOptions = services.GetService<IOptions<AdminOptions>>().Value;
-SeedData.Seed(context, hashingService, adminOptions);
+await SeedData.SeedSysAdminAndPermissions(context, hashingService, adminOptions);
+await SeedData.SeedDefaultValueEntities(context);
 
 app.UseHttpsRedirection();
 
