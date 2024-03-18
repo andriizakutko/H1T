@@ -8,7 +8,7 @@ namespace Infrastructure.Data;
 
 public static class SeedData
 {
-    public static async Task SeedSysAdminAndPermissions(
+    public static async Task SeedSysAdminAndPermissionsData(
         ApplicationDbContext context, 
         IPasswordHashingService passwordHashingService, 
         AdminOptions options)
@@ -47,7 +47,7 @@ public static class SeedData
         await context.SaveChangesAsync();
     }
 
-    public static async Task SeedDefaultValueEntities(ApplicationDbContext context)
+    public static async Task SeedTransportCommonData(ApplicationDbContext context)
     {
         if(await context.TransportTypes.AnyAsync()) return;
         
