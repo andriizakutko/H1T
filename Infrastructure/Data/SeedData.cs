@@ -13,10 +13,7 @@ public static class SeedData
         IPasswordHashingService passwordHashingService, 
         AdminOptions options)
     {
-        if (!await context.Users.AnyAsync())
-        {
-            
-        };
+        if (await context.Users.AnyAsync()) return;
         
         var user = new User()
         {
@@ -29,28 +26,21 @@ public static class SeedData
 
         await context.Users.AddAsync(user);
 
-        var userPermission = new Permission() { Name = Authentication.Permissions.User };
-        var moderatorPermission = new Permission() { Name = Authentication.Permissions.Moderator };
-        var adminPermission = new Permission() { Name = Authentication.Permissions.Admin };
-        var sysAdminPermission = new Permission() { Name = Authentication.Permissions.SysAdmin };
-
         var permissions = new List<Permission>
         {
-            userPermission,
-            moderatorPermission,
-            adminPermission,
-            sysAdminPermission
+            new() { Name = Authentication.Permissions.User },
+            new() { Name = Authentication.Permissions.Moderator },
+            new() { Name = Authentication.Permissions.Admin },
+            new() { Name = Authentication.Permissions.SysAdmin }
         };
         
         await context.Permissions.AddRangeAsync(permissions);
 
-        var userPermissions = new List<UserPermission>()
+        var userPermissions = permissions.Select(x => new UserPermission()
         {
-            new() { User = user, Permission = userPermission },
-            new() { User = user, Permission = moderatorPermission },
-            new() { User = user, Permission = adminPermission },
-            new() { User = user, Permission = sysAdminPermission },
-        };
+            User = user,
+            Permission = x
+        }).ToList();
 
         await context.UserPermissions.AddRangeAsync(userPermissions);
 
