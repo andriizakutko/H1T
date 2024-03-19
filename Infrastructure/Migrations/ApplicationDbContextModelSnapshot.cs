@@ -68,7 +68,7 @@ namespace Infrastructure.Migrations
                     b.Property<string>("Country")
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
@@ -125,7 +125,7 @@ namespace Infrastructure.Migrations
                     b.Property<Guid?>("TypeId")
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime>("UpdatedAt")
+                    b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
