@@ -1,6 +1,6 @@
 ﻿namespace Domain.Enums;
 
-public enum ModeratorOverviewStatus
+public enum ModeratorOverviewStatuses
 {
     Waiting,
     Overviewing,

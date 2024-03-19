@@ -8,4 +8,5 @@ public interface ITransportRepository
     Task<TransportType> GetTransportTypeById(Guid id);
     Task<TransportMake> GetTransportMakeById(Guid id);
     Task<TransportModel> GetTransportModelById(Guid id);
+    Task<TransportBodyType> GetTransportBodyTypeById(Guid id);
 }

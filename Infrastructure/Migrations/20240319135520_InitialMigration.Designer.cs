@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240318153127_AddNewModels")]
-    partial class AddNewModels
+    [Migration("20240319135520_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -42,6 +42,20 @@ namespace Infrastructure.Migrations
                     b.ToTable("Images");
                 });
 
+            modelBuilder.Entity("Domain.ModeratorOverviewStatus", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ModeratorOverviewStatuses");
+                });
+
             modelBuilder.Entity("Domain.Permission", b =>
                 {
                     b.Property<Guid>("Id")
@@ -65,13 +79,16 @@ namespace Infrastructure.Migrations
                     b.Property<string>("Address")
                         .HasColumnType("text");
 
+                    b.Property<Guid?>("BodyTypeId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("City")
                         .HasColumnType("text");
 
                     b.Property<string>("Country")
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
@@ -110,8 +127,8 @@ namespace Infrastructure.Migrations
                     b.Property<Guid?>("ModelId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("ModeratorOverviewStatus")
-                        .HasColumnType("text");
+                    b.Property<Guid?>("ModeratorOverviewStatusId")
+                        .HasColumnType("uuid");
 
                     b.Property<double>("Price")
                         .HasColumnType("double precision");
@@ -128,14 +145,18 @@ namespace Infrastructure.Migrations
                     b.Property<Guid?>("TypeId")
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime>("UpdatedAt")
+                    b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("BodyTypeId");
+
                     b.HasIndex("MakeId");
 
                     b.HasIndex("ModelId");
+
+                    b.HasIndex("ModeratorOverviewStatusId");
 
                     b.HasIndex("TypeId");
 
@@ -349,6 +370,10 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Transport.TransportAdvertisement", b =>
                 {
+                    b.HasOne("Domain.Transport.TransportBodyType", "BodyType")
+                        .WithMany()
+                        .HasForeignKey("BodyTypeId");
+
                     b.HasOne("Domain.Transport.TransportMake", "Make")
                         .WithMany()
                         .HasForeignKey("MakeId");
@@ -357,13 +382,21 @@ namespace Infrastructure.Migrations
                         .WithMany()
                         .HasForeignKey("ModelId");
 
+                    b.HasOne("Domain.ModeratorOverviewStatus", "ModeratorOverviewStatus")
+                        .WithMany()
+                        .HasForeignKey("ModeratorOverviewStatusId");
+
                     b.HasOne("Domain.Transport.TransportType", "Type")
                         .WithMany()
                         .HasForeignKey("TypeId");
 
+                    b.Navigation("BodyType");
+
                     b.Navigation("Make");
 
                     b.Navigation("Model");
+
+                    b.Navigation("ModeratorOverviewStatus");
 
                     b.Navigation("Type");
                 });

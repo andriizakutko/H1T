@@ -26,4 +26,9 @@ public class TransportRepository(ApplicationDbContext context) : ITransportRepos
     {
         return await context.TransportModels.FindAsync(id);
     }
+
+    public async Task<TransportBodyType> GetTransportBodyTypeById(Guid id)
+    {
+        return await context.TransportBodyTypes.FindAsync(id);
+    }
 }

@@ -9,26 +9,29 @@ using Persistence.Interfaces;
 
 namespace Application.Services;
 
-public class AdvertisementService(
-    IAdvertisementRepository advertisementRepository,
+public class TransportAdvertisementService(
+    ITransportAdvertisementRepository transportAdvertisementRepository,
     ITransportRepository transportRepository,
-    IImageService imageService) : IAdvertisementService
+    IImageService imageService,
+    IModeratorService moderatorService) : ITransportAdvertisementService
 {
     public async Task<Result<IEnumerable<TransportAdvertisementResult>>> GetTransportAdvertisements()
     {
         try
         {
-            var list = await advertisementRepository.GetTransportAdvertisements();
+            var list = await transportAdvertisementRepository.GetTransportAdvertisements();
             var advertisements = list.Select(x => new TransportAdvertisementResult()
             {
+                Id = x.Id,
                 Title = x.Title,
                 SubTitle = x.SubTitle,
                 Description = x.Description,
                 Price = x.Price,
-                ModeratorOverviewStatus = x.ModeratorOverviewStatus,
-                Type = x.Type,
-                Make = x.Make,
-                Model = x.Model,
+                ModeratorOverviewStatus = x.ModeratorOverviewStatus.Name,
+                Type = x.Type.Name,
+                Make = x.Make.Name,
+                Model = x.Model.Name,
+                BodyType = x.BodyType.Name,
                 EngineCapacity = x.EngineCapacity,
                 SerialNumber = x.SerialNumber,
                 FuelConsumption = x.FuelConsumption,
@@ -64,13 +67,18 @@ public class AdvertisementService(
             
             if(addImagesResult.IsFailure) return Result.Failure(addImagesResult.Error);
 
+            var moderatorOverviewStatusResult =
+                await moderatorService.GetModeratorOverviewStatusByName(ModeratorOverviewStatuses.Waiting.ToString());
+
+            if (moderatorOverviewStatusResult.IsFailure) return Result.Failure(moderatorOverviewStatusResult.Error);
+
             var transportAdvertisementModelToCreate = new TransportAdvertisement
             {
                 Title = request.Title,
                 SubTitle = request.SubTitle,
                 Description = request.Description,
                 Price = request.Price,
-                ModeratorOverviewStatus = ModeratorOverviewStatus.Waiting.ToString(),
+                ModeratorOverviewStatus = moderatorOverviewStatusResult.Value,
                 EngineCapacity = request.EngineCapacity,
                 SerialNumber = request.SerialNumber,
                 FuelConsumption = request.FuelConsumption,
@@ -89,24 +97,39 @@ public class AdvertisementService(
             var transportType = await transportRepository.GetTransportTypeById(request.TypeId);
             var transportMake = await transportRepository.GetTransportMakeById(request.MakeId);
             var transportModel = await transportRepository.GetTransportModelById(request.ModelId);
+            var transportBodyType = await transportRepository.GetTransportBodyTypeById(request.BodyTypeId);
 
-            transportAdvertisementModelToCreate.Type = transportType.Name;
-            transportAdvertisementModelToCreate.Make = transportMake.Name;
-            transportAdvertisementModelToCreate.Model = transportModel.Name;
+            transportAdvertisementModelToCreate.Type = transportType;
+            transportAdvertisementModelToCreate.Make = transportMake;
+            transportAdvertisementModelToCreate.Model = transportModel;
+            transportAdvertisementModelToCreate.BodyType = transportBodyType;
             
-            var createdAdModel = await advertisementRepository.CreateTransportAdvertisement(transportAdvertisementModelToCreate);
+            var createdAdModel = await transportAdvertisementRepository.CreateTransportAdvertisement(transportAdvertisementModelToCreate);
 
             var transportAdvertisementImages = images
                 .Select(x => new TransportAdvertisementImage
                     { TransportAdvertisement = createdAdModel, Image = x }).ToList();
 
-            await advertisementRepository.AddTransportAdvertisementImages(transportAdvertisementImages);
+            await transportAdvertisementRepository.AddTransportAdvertisementImages(transportAdvertisementImages);
 
             return Result.Success();
         }
         catch (Exception ex)
         {
             return Result.Failure(new Error("AdvertisementService.CreateTransportAdvertisement", ex.Message));
+        }
+    }
+
+    public async Task<Result<TransportAdvertisement>> GetTransportAdvertisementById(Guid id)
+    {
+        try
+        {
+            return Result<TransportAdvertisement>.Success(
+                await transportAdvertisementRepository.GetTransportAdvertisementById(id));
+        }
+        catch (Exception ex)
+        {
+            return Result<TransportAdvertisement>.Failure(new Error("AdvertisementService.GetTransportAdvertisementById", ex.Message));
         }
     }
 }

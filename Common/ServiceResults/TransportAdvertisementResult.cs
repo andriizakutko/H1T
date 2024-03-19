@@ -2,6 +2,7 @@ namespace Common.ServiceResults;
 
 public class TransportAdvertisementResult
 {
+    public Guid Id { get; set; }
     public string Title { get; set; }
     public string SubTitle { get; set; }
     public string Description { get; set; }
@@ -10,6 +11,7 @@ public class TransportAdvertisementResult
     public string Type { get; set; }
     public string Make { get; set; }
     public string Model { get; set; }
+    public string BodyType { get; set; }
     public double EngineCapacity { get; set; }
     public string SerialNumber { get; set; }
     public double FuelConsumption { get; set; }

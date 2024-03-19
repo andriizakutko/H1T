@@ -19,6 +19,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<TransportTypeMake> TransportTypeMakes { get; set; }
     public DbSet<TransportTypeBodyType> TransportTypeBodyTypes { get; set; }
     public DbSet<TransportMakeModel> TransportMakeModels { get; set; }
+    public DbSet<ModeratorOverviewStatus> ModeratorOverviewStatuses { get; set; }
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     {
         

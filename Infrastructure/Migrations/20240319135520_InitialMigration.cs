@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class AddNewModels : Migration
+    public partial class InitialMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -21,6 +21,30 @@ namespace Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Images", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ModeratorOverviewStatuses",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ModeratorOverviewStatuses", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Permissions",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Permissions", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -72,6 +96,28 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Users",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    FirstName = table.Column<string>(type: "text", nullable: true),
+                    LastName = table.Column<string>(type: "text", nullable: true),
+                    Email = table.Column<string>(type: "text", nullable: true),
+                    Password = table.Column<string>(type: "text", nullable: true),
+                    Salt = table.Column<byte[]>(type: "bytea", nullable: true),
+                    Country = table.Column<string>(type: "text", nullable: true),
+                    City = table.Column<string>(type: "text", nullable: true),
+                    Address = table.Column<string>(type: "text", nullable: true),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Users", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "TransportMakeModels",
                 columns: table => new
                 {
@@ -99,9 +145,6 @@ namespace Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    TypeId = table.Column<Guid>(type: "uuid", nullable: true),
-                    MakeId = table.Column<Guid>(type: "uuid", nullable: true),
-                    ModelId = table.Column<Guid>(type: "uuid", nullable: true),
                     EngineCapacity = table.Column<double>(type: "double precision", nullable: false),
                     SerialNumber = table.Column<string>(type: "text", nullable: true),
                     FuelConsumption = table.Column<double>(type: "double precision", nullable: false),
@@ -115,17 +158,31 @@ namespace Infrastructure.Migrations
                     IsNew = table.Column<bool>(type: "boolean", nullable: false),
                     IsUsed = table.Column<bool>(type: "boolean", nullable: false),
                     IsVerified = table.Column<bool>(type: "boolean", nullable: false),
+                    TypeId = table.Column<Guid>(type: "uuid", nullable: true),
+                    MakeId = table.Column<Guid>(type: "uuid", nullable: true),
+                    ModelId = table.Column<Guid>(type: "uuid", nullable: true),
+                    BodyTypeId = table.Column<Guid>(type: "uuid", nullable: true),
+                    ModeratorOverviewStatusId = table.Column<Guid>(type: "uuid", nullable: true),
                     Title = table.Column<string>(type: "text", nullable: true),
                     SubTitle = table.Column<string>(type: "text", nullable: true),
                     Description = table.Column<string>(type: "text", nullable: true),
                     Price = table.Column<double>(type: "double precision", nullable: false),
-                    ModeratorOverviewStatus = table.Column<string>(type: "text", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_TransportAdvertisements", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TransportAdvertisements_ModeratorOverviewStatuses_Moderator~",
+                        column: x => x.ModeratorOverviewStatusId,
+                        principalTable: "ModeratorOverviewStatuses",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_TransportAdvertisements_TransportBodyTypes_BodyTypeId",
+                        column: x => x.BodyTypeId,
+                        principalTable: "TransportBodyTypes",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_TransportAdvertisements_TransportMakes_MakeId",
                         column: x => x.MakeId,
@@ -190,6 +247,29 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "UserPermissions",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: true),
+                    PermissionId = table.Column<Guid>(type: "uuid", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserPermissions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserPermissions_Permissions_PermissionId",
+                        column: x => x.PermissionId,
+                        principalTable: "Permissions",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_UserPermissions_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "TransportAdvertisementImages",
                 columns: table => new
                 {
@@ -223,6 +303,11 @@ namespace Infrastructure.Migrations
                 column: "TransportAdvertisementId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_TransportAdvertisements_BodyTypeId",
+                table: "TransportAdvertisements",
+                column: "BodyTypeId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_TransportAdvertisements_MakeId",
                 table: "TransportAdvertisements",
                 column: "MakeId");
@@ -231,6 +316,11 @@ namespace Infrastructure.Migrations
                 name: "IX_TransportAdvertisements_ModelId",
                 table: "TransportAdvertisements",
                 column: "ModelId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TransportAdvertisements_ModeratorOverviewStatusId",
+                table: "TransportAdvertisements",
+                column: "ModeratorOverviewStatusId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_TransportAdvertisements_TypeId",
@@ -266,6 +356,16 @@ namespace Infrastructure.Migrations
                 name: "IX_TransportTypeMakes_TransportTypeId",
                 table: "TransportTypeMakes",
                 column: "TransportTypeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserPermissions_PermissionId",
+                table: "UserPermissions",
+                column: "PermissionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserPermissions_UserId",
+                table: "UserPermissions",
+                column: "UserId");
         }
 
         /// <inheritdoc />
@@ -284,10 +384,22 @@ namespace Infrastructure.Migrations
                 name: "TransportTypeMakes");
 
             migrationBuilder.DropTable(
+                name: "UserPermissions");
+
+            migrationBuilder.DropTable(
                 name: "Images");
 
             migrationBuilder.DropTable(
                 name: "TransportAdvertisements");
+
+            migrationBuilder.DropTable(
+                name: "Permissions");
+
+            migrationBuilder.DropTable(
+                name: "Users");
+
+            migrationBuilder.DropTable(
+                name: "ModeratorOverviewStatuses");
 
             migrationBuilder.DropTable(
                 name: "TransportBodyTypes");

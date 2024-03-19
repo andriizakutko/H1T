@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace API.Controllers;
 
 [Route("api/advertisement")]
-public class AdvertisementController(IAdvertisementService service) : BaseApiController
+public class AdvertisementController(ITransportAdvertisementService service) : BaseApiController
 {
     [HttpGet("get-transport-advertisements")]
     [AllowAnonymous]

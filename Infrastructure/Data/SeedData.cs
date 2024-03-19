@@ -1,5 +1,6 @@
 ﻿using Common.Options;
 using Domain;
+using Domain.Enums;
 using Domain.Transport;
 using Infrastructure.PasswordHashing;
 using Microsoft.EntityFrameworkCore;
@@ -43,6 +44,23 @@ public static class SeedData
         }).ToList();
 
         await context.UserPermissions.AddRangeAsync(userPermissions);
+
+        await context.SaveChangesAsync();
+    }
+
+    public static async Task SeedModeratorOverviewStatuses(ApplicationDbContext context)
+    {
+        if(await context.ModeratorOverviewStatuses.AnyAsync()) return;
+
+        var moderatorOverviewStatuses = new List<ModeratorOverviewStatus>()
+        {
+            new() { Name = ModeratorOverviewStatuses.Waiting.ToString() },
+            new() { Name = ModeratorOverviewStatuses.Overviewing.ToString() },
+            new() { Name = ModeratorOverviewStatuses.Rejected.ToString() },
+            new() { Name = ModeratorOverviewStatuses.Accepted.ToString() },
+        };
+
+        await context.AddRangeAsync(moderatorOverviewStatuses);
 
         await context.SaveChangesAsync();
     }

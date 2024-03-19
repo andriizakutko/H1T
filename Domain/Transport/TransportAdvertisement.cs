@@ -4,9 +4,6 @@ namespace Domain.Transport;
 
 public class TransportAdvertisement : Advertisement
 {
-    public string Type { get; set; }
-    public string Make { get; set; }
-    public string Model { get; set; }
     public double EngineCapacity { get; set; }
     public string SerialNumber { get; set; }
     public double FuelConsumption { get; set; }
@@ -20,5 +17,10 @@ public class TransportAdvertisement : Advertisement
     public bool IsNew { get; set; }
     public bool IsUsed { get; set; }
     public bool IsVerified { get; set; }
+    public virtual TransportType Type { get; set; }
+    public virtual TransportMake Make { get; set; }
+    public virtual TransportModel Model { get; set; }
+    public virtual TransportBodyType BodyType { get; set; }
+    public virtual ModeratorOverviewStatus ModeratorOverviewStatus { get; set; }
     public virtual ICollection<TransportAdvertisementImage> Images { get; set; }
 }

@@ -24,8 +24,9 @@ public static class Register
         services.AddTransient<IUserRepository, UserRepository>();
         services.AddTransient<IPermissionRepository, PermissionRepository>();
         services.AddTransient<ITransportRepository, TransportRepository>();
-        services.AddTransient<IAdvertisementRepository, AdvertisementRepository>();
+        services.AddTransient<ITransportAdvertisementRepository, TransportAdvertisementRepository>();
         services.AddTransient<IImageRepository, ImageRepository>();
+        services.AddTransient<IModeratorRepository, ModeratorRepository>();
     }
     
     public static void RegisterServices(this IServiceCollection services)
@@ -37,8 +38,9 @@ public static class Register
         services.AddTransient<IAdminService, AdminService>();
         services.AddTransient<IPermissionService, PermissionService>();
         services.AddTransient<ITransportService, TransportService>();
-        services.AddTransient<IAdvertisementService, AdvertisementService>();
+        services.AddTransient<ITransportAdvertisementService, TransportAdvertisementService>();
         services.AddTransient<IImageService, ImageService>();
+        services.AddTransient<IModeratorService, ModeratorService>();
     }
 
     public static void RegisterProviders(this IServiceCollection services)

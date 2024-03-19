@@ -39,6 +39,20 @@ namespace Infrastructure.Migrations
                     b.ToTable("Images");
                 });
 
+            modelBuilder.Entity("Domain.ModeratorOverviewStatus", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ModeratorOverviewStatuses");
+                });
+
             modelBuilder.Entity("Domain.Permission", b =>
                 {
                     b.Property<Guid>("Id")
@@ -61,6 +75,9 @@ namespace Infrastructure.Migrations
 
                     b.Property<string>("Address")
                         .HasColumnType("text");
+
+                    b.Property<Guid?>("BodyTypeId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("City")
                         .HasColumnType("text");
@@ -92,8 +109,8 @@ namespace Infrastructure.Migrations
                     b.Property<bool>("IsVerified")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("Make")
-                        .HasColumnType("text");
+                    b.Property<Guid?>("MakeId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("ManufactureCountry")
                         .HasColumnType("text");
@@ -104,11 +121,11 @@ namespace Infrastructure.Migrations
                     b.Property<int>("Mileage")
                         .HasColumnType("integer");
 
-                    b.Property<string>("Model")
-                        .HasColumnType("text");
+                    b.Property<Guid?>("ModelId")
+                        .HasColumnType("uuid");
 
-                    b.Property<string>("ModeratorOverviewStatus")
-                        .HasColumnType("text");
+                    b.Property<Guid?>("ModeratorOverviewStatusId")
+                        .HasColumnType("uuid");
 
                     b.Property<double>("Price")
                         .HasColumnType("double precision");
@@ -122,13 +139,23 @@ namespace Infrastructure.Migrations
                     b.Property<string>("Title")
                         .HasColumnType("text");
 
-                    b.Property<string>("Type")
-                        .HasColumnType("text");
+                    b.Property<Guid?>("TypeId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("BodyTypeId");
+
+                    b.HasIndex("MakeId");
+
+                    b.HasIndex("ModelId");
+
+                    b.HasIndex("ModeratorOverviewStatusId");
+
+                    b.HasIndex("TypeId");
 
                     b.ToTable("TransportAdvertisements");
                 });
@@ -336,6 +363,39 @@ namespace Infrastructure.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("UserPermissions");
+                });
+
+            modelBuilder.Entity("Domain.Transport.TransportAdvertisement", b =>
+                {
+                    b.HasOne("Domain.Transport.TransportBodyType", "BodyType")
+                        .WithMany()
+                        .HasForeignKey("BodyTypeId");
+
+                    b.HasOne("Domain.Transport.TransportMake", "Make")
+                        .WithMany()
+                        .HasForeignKey("MakeId");
+
+                    b.HasOne("Domain.Transport.TransportModel", "Model")
+                        .WithMany()
+                        .HasForeignKey("ModelId");
+
+                    b.HasOne("Domain.ModeratorOverviewStatus", "ModeratorOverviewStatus")
+                        .WithMany()
+                        .HasForeignKey("ModeratorOverviewStatusId");
+
+                    b.HasOne("Domain.Transport.TransportType", "Type")
+                        .WithMany()
+                        .HasForeignKey("TypeId");
+
+                    b.Navigation("BodyType");
+
+                    b.Navigation("Make");
+
+                    b.Navigation("Model");
+
+                    b.Navigation("ModeratorOverviewStatus");
+
+                    b.Navigation("Type");
                 });
 
             modelBuilder.Entity("Domain.Transport.TransportAdvertisementImage", b =>
