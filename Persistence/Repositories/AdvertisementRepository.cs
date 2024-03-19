@@ -12,10 +12,12 @@ public class AdvertisementRepository(ApplicationDbContext context) : IAdvertisem
         return await context.TransportAdvertisements.ToListAsync();
     }
 
-    public async Task CreateTransportAdvertisement(TransportAdvertisement model)
+    public async Task<TransportAdvertisement> CreateTransportAdvertisement(TransportAdvertisement model)
     {
-        await context.TransportAdvertisements.AddAsync(model);
+        var result = await context.TransportAdvertisements.AddAsync(model);
         await context.SaveChangesAsync();
+
+        return result.Entity;
     }
 
     public async Task AddTransportAdvertisementImages(ICollection<TransportAdvertisementImage> advertisementImages)

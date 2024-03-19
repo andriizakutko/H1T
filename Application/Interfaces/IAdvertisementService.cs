@@ -1,11 +1,11 @@
 using Common.Requests;
 using Common.Results;
-using Domain.Transport;
+using Common.ServiceResults;
 
 namespace Application.Interfaces;
 
 public interface IAdvertisementService
 {
-    Task<Result<IEnumerable<TransportAdvertisement>>> GetTransportAdvertisements();
+    Task<Result<IEnumerable<TransportAdvertisementResult>>> GetTransportAdvertisements();
     Task<Result> CreateTransportAdvertisement(CreateTransportAdvertisementRequest request);
 }

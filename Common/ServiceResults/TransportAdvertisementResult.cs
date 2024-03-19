@@ -1,9 +1,12 @@
-﻿using Domain.Abstract;
+namespace Common.ServiceResults;
 
-namespace Domain.Transport;
-
-public class TransportAdvertisement : Advertisement
+public class TransportAdvertisementResult
 {
+    public string Title { get; set; }
+    public string SubTitle { get; set; }
+    public string Description { get; set; }
+    public double Price { get; set; }
+    public string ModeratorOverviewStatus { get; set; }
     public string Type { get; set; }
     public string Make { get; set; }
     public string Model { get; set; }
@@ -20,5 +23,5 @@ public class TransportAdvertisement : Advertisement
     public bool IsNew { get; set; }
     public bool IsUsed { get; set; }
     public bool IsVerified { get; set; }
-    public virtual ICollection<TransportAdvertisementImage> Images { get; set; }
+    public string[] Images { get; set; }
 }

@@ -1,21 +1,23 @@
 using Application.Interfaces;
 using Common.Requests;
+using Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
 [Route("api/advertisement")]
-[AllowAnonymous]
 public class AdvertisementController(IAdvertisementService service) : BaseApiController
 {
-    [HttpGet("get-transport-advertisement")]
+    [HttpGet("get-transport-advertisements")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetTransportAdvertisements()
     {
         return HandleResult(await service.GetTransportAdvertisements());
     }
 
     [HttpPost("create-transport-advertisement")]
+    [HasPermission(Permissions.User)]
     public async Task<IActionResult> CreateTransportAdvertisement(CreateTransportAdvertisementRequest request)
     {
         return HandleResult(await service.CreateTransportAdvertisement(request));
