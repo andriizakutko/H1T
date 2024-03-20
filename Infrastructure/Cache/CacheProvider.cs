@@ -59,4 +59,17 @@ public class CacheProvider : ICacheProvider
             throw;
         }
     }
+
+    public void Clear()
+    {
+        try
+        {
+            _db.Execute(CacheKeys.ClearDb);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex.Message);
+            throw;
+        }
+    }
 }

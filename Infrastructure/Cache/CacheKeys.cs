@@ -2,6 +2,7 @@
 
 public static class CacheKeys
 {
+    public const string ClearDb = "FLUSHDB";
     public static class Transport
     {
         public const string Types = "transport-types";
