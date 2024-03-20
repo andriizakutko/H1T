@@ -22,5 +22,6 @@ public class TransportAdvertisement : Advertisement
     public virtual TransportModel Model { get; set; }
     public virtual TransportBodyType BodyType { get; set; }
     public virtual ModeratorOverviewStatus ModeratorOverviewStatus { get; set; }
+    public virtual User Creator { get; set; }
     public virtual ICollection<TransportAdvertisementImage> Images { get; set; }
 }

@@ -13,7 +13,8 @@ public class TransportAdvertisementService(
     ITransportAdvertisementRepository transportAdvertisementRepository,
     ITransportRepository transportRepository,
     IImageService imageService,
-    IModeratorService moderatorService) : ITransportAdvertisementService
+    IModeratorService moderatorService,
+    IUserRepository userRepository) : ITransportAdvertisementService
 {
     public async Task<Result<IEnumerable<TransportAdvertisementResult>>> GetTransportAdvertisements()
     {
@@ -45,7 +46,10 @@ public class TransportAdvertisementService(
                 IsNew = x.IsNew,
                 IsUsed = x.IsUsed,
                 IsVerified = x.IsVerified,
-                Images = x.Images.Select(i => i.Image.Url).ToArray()
+                Images = x.Images.Select(i => i.Image.Url).ToArray(),
+                CreatorEmail = x.Creator.Email,
+                CreatorFirstName = x.Creator.FirstName,
+                CreatorLastName = x.Creator.LastName
             });
             
             return Result<IEnumerable<TransportAdvertisementResult>>.Success(advertisements);
@@ -98,11 +102,18 @@ public class TransportAdvertisementService(
             var transportMake = await transportRepository.GetTransportMakeById(request.MakeId);
             var transportModel = await transportRepository.GetTransportModelById(request.ModelId);
             var transportBodyType = await transportRepository.GetTransportBodyTypeById(request.BodyTypeId);
+            
+            var creator = await userRepository.GetByEmail(request.CreatorEmail);
+
+            if (creator is null)
+                return Result.Failure(new Error("TransportAdvertisementService.CreateTransportAdvertisement",
+                    "Creator was not found"));
 
             transportAdvertisementModelToCreate.Type = transportType;
             transportAdvertisementModelToCreate.Make = transportMake;
             transportAdvertisementModelToCreate.Model = transportModel;
             transportAdvertisementModelToCreate.BodyType = transportBodyType;
+            transportAdvertisementModelToCreate.Creator = creator;
             
             var createdAdModel = await transportAdvertisementRepository.CreateTransportAdvertisement(transportAdvertisementModelToCreate);
 

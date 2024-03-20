@@ -10,6 +10,7 @@ public class CreateTransportAdvertisementRequest
     public Guid MakeId { get; set; }
     public Guid ModelId { get; set; }
     public Guid BodyTypeId { get; set; }
+    public string CreatorEmail { get; set; }
     public double EngineCapacity { get; set; }
     public string SerialNumber { get; set; }
     public double FuelConsumption { get; set; }

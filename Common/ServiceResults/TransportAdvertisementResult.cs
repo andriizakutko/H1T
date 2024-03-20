@@ -26,4 +26,7 @@ public class TransportAdvertisementResult
     public bool IsUsed { get; set; }
     public bool IsVerified { get; set; }
     public string[] Images { get; set; }
+    public string CreatorEmail { get; set; }
+    public string CreatorFirstName { get; set; }
+    public string CreatorLastName { get; set; }
 }
