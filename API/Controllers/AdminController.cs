@@ -8,30 +8,30 @@ namespace API.Controllers;
 [Route("api/admin")]
 public class AdminController(IAdminService adminService) : BaseApiController
 {
-    [HasPermission(Permissions.Admin)]
     [HttpGet("get-users")]
+    [HasPermission(Permissions.Admin)]
     public async Task<IActionResult> GetAll()
     {
         return HandleResult(await adminService.GetUsers());
     }
-
-    [HasPermission(Permissions.SysAdmin)]
+    
     [HttpPost("add-user-to-permission")]
+    [HasPermission(Permissions.SysAdmin)]
     public async Task<IActionResult> AddUserToPermission(AddUserToPermissionRequest addUserToPermissionRequest)
     {
         return HandleResult(
             await adminService.AddUserToPermission(await adminService.GetUser(addUserToPermissionRequest.Email), addUserToPermissionRequest.PermissionName));
     }
-
-    [HasPermission(Permissions.SysAdmin)]
+    
     [HttpGet("get-users-permissions")]
+    [HasPermission(Permissions.SysAdmin)]
     public async Task<IActionResult> GetUsersPermissions()
     {
         return HandleResult(await adminService.GetUsersPermissions());
     }
     
-    [HasPermission(Permissions.SysAdmin)]
     [HttpDelete("delete-user-from-permission")]
+    [HasPermission(Permissions.SysAdmin)]
     public async Task<IActionResult> DeleteUserFromPermission(DeleteUserFromPermissionRequest deleteUserFromPermissionRequest)
     {
         return HandleResult(
