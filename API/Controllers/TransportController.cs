@@ -7,28 +7,28 @@ namespace API.Controllers;
 [Route("api/transport")]
 public class TransportController(ITransportService service) : BaseApiController
 {
-    [HttpGet("get-transport-types")]
+    [HttpGet("get-types")]
     [HasPermission(Permissions.User)]
     public async Task<IActionResult> GetTransportTypes()
     {
         return HandleResult(await service.GetTransportTypes());
     }
 
-    [HttpGet("get-transport-makes/{transportTypeId}")]
+    [HttpGet("get-makes/{transportTypeId}")]
     [HasPermission(Permissions.User)]
     public async Task<IActionResult> GetTransportMakesByTransportTypeId(Guid transportTypeId)
     {
         return HandleResult(await service.GetTransportMakesByTransportTypeId(transportTypeId));
     }
     
-    [HttpGet("get-transport-body-types/{transportTypeId}")]
+    [HttpGet("get-body-types/{transportTypeId}")]
     [HasPermission(Permissions.User)]
     public async Task<IActionResult> GetTransportBodyTypesByTransportTypeId(Guid transportTypeId)
     {
         return HandleResult(await service.GetTransportBodyTypesByTransportTypeId(transportTypeId));
     }
     
-    [HttpGet("get-transport-models/{transportMakeId}")]
+    [HttpGet("get-models/{transportMakeId}")]
     [HasPermission(Permissions.User)]
     public async Task<IActionResult> GetTransportModelsByTransportMakeId(Guid transportMakeId)
     {
