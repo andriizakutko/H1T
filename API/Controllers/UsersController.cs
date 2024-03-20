@@ -1,6 +1,6 @@
 ﻿using Application.Interfaces;
-using Common.DTOs;
 using Common.Jwt;
+using Common.Requests;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,15 +10,15 @@ namespace API.Controllers;
 public class UsersController(IUserService service) : BaseApiController
 {
     [HttpPost("register")]
-    public async Task<IActionResult> Register(RegisterDto registerDto)
+    public async Task<IActionResult> Register(RegisterRequest registerRequest)
     {
-        return HandleResult(await service.Register(registerDto));
+        return HandleResult(await service.Register(registerRequest));
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login(LoginDto loginDto)
+    public async Task<IActionResult> Login(LoginRequest loginRequest)
     {
-        return HandleResult(await service.Login(loginDto));
+        return HandleResult(await service.Login(loginRequest));
     }
 
     [Authorize]

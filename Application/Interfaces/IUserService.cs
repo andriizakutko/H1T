@@ -1,11 +1,12 @@
-﻿using Common.DTOs;
+﻿using Common.Requests;
+using Common.Responses;
 using Common.Results;
 
 namespace Application.Interfaces;
 
 public interface IUserService
 {
-    Task<Result> Register(RegisterDto registerDto);
-    Task<Result<TokenDto>> Login(LoginDto loginDto);
-    Task<Result<UserInfoDto>> GetUser(string email);
+    Task<Result> Register(RegisterRequest registerRequest);
+    Task<Result<TokenResponse>> Login(LoginRequest loginRequest);
+    Task<Result<UserInfoResponse>> GetUser(string email);
 }

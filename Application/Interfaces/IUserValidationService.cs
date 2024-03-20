@@ -1,10 +1,10 @@
-﻿using Common.DTOs;
+﻿using Common.Requests;
 using Common.Results;
 
 namespace Application.Interfaces;
 
 public interface IUserValidationService
 {
-    Task<Result> ValidateRegisterModel(RegisterDto registerDto);
-    Task<Result> ValidateLoginModel(LoginDto loginDto);
+    Task<Result> ValidateRegisterModel(RegisterRequest registerRequest);
+    Task<Result> ValidateLoginModel(LoginRequest loginRequest);
 }

@@ -1,5 +1,6 @@
 ﻿using Application.Interfaces;
-using Common.DTOs;
+using Common.Requests;
+using Common.Responses;
 using Common.Results;
 using Domain;
 using Infrastructure.Authentication;
@@ -16,11 +17,11 @@ public class UserService(
         IAdminService adminService)
     : IUserService
 {
-    public async Task<Result> Register(RegisterDto registerDto)
+    public async Task<Result> Register(RegisterRequest registerRequest)
     {
         try
         {
-            var validationResult = await validationService.ValidateRegisterModel(registerDto);
+            var validationResult = await validationService.ValidateRegisterModel(registerRequest);
 
             if (validationResult.IsFailure)
             {
@@ -29,14 +30,14 @@ public class UserService(
 
             var user = new User()
             {
-                FirstName = registerDto.FirstName,
-                LastName = registerDto.LastName,
-                Email = registerDto.Email,
-                Password = passwordHashingService.HashPassword(registerDto.Password, out var salt),
+                FirstName = registerRequest.FirstName,
+                LastName = registerRequest.LastName,
+                Email = registerRequest.Email,
+                Password = passwordHashingService.HashPassword(registerRequest.Password, out var salt),
                 Salt = salt,
-                Country = registerDto.Country,
-                City = registerDto.City,
-                Address = registerDto.Address
+                Country = registerRequest.Country,
+                City = registerRequest.City,
+                Address = registerRequest.Address
             };
         
             var createdUser = await repository.Create(user);
@@ -52,39 +53,39 @@ public class UserService(
         }
     }
 
-    public async Task<Result<TokenDto>> Login(LoginDto loginDto)
+    public async Task<Result<TokenResponse>> Login(LoginRequest loginRequest)
     {
         try
         {
-            var validationResult = await validationService.ValidateLoginModel(loginDto);
+            var validationResult = await validationService.ValidateLoginModel(loginRequest);
             
             if (validationResult.IsFailure)
             {
-                return Result<TokenDto>.Failure(validationResult.Error);
+                return Result<TokenResponse>.Failure(validationResult.Error);
             }
 
-            var user = await repository.GetByEmail(loginDto.Email);
+            var user = await repository.GetByEmail(loginRequest.Email);
 
-            return Result<TokenDto>.Success(new TokenDto()
+            return Result<TokenResponse>.Success(new TokenResponse()
             {
                 Token = await jwtService.Generate(user)
             });
         }
         catch
         {
-            return Result<TokenDto>.Failure(new Error("UserService.Login", "Server error"));
+            return Result<TokenResponse>.Failure(new Error("UserService.Login", "Server error"));
         }
     }
 
-    public async Task<Result<UserInfoDto>> GetUser(string email)
+    public async Task<Result<UserInfoResponse>> GetUser(string email)
     {
         var user = await repository.GetByEmail(email);
 
-        if (user is null) return Result<UserInfoDto>.Failure(new Error("UserService.GetUser", "User was not found"));
+        if (user is null) return Result<UserInfoResponse>.Failure(new Error("UserService.GetUser", "User was not found"));
 
         var userPermissions = await repository.GetUserPermissions(email);
 
-        return Result<UserInfoDto>.Success(new UserInfoDto()
+        return Result<UserInfoResponse>.Success(new UserInfoResponse()
         {
             Id = user.Id,
             FirstName = user.FirstName,

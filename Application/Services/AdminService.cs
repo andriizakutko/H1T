@@ -1,5 +1,4 @@
 ﻿using Application.Interfaces;
-using Common.DTOs;
 using Common.Options;
 using Common.Responses;
 using Common.Results;
@@ -18,13 +17,13 @@ public class AdminService(
         IHttpContextAccessor contextAccessor)
     : IAdminService
 {
-    public async Task<Result<IEnumerable<UserDto>>> GetUsers()
+    public async Task<Result<IEnumerable<UserDetailsResponse>>> GetUsers()
     {
         var users = await userRepository.GetAll();
         
-        return Result<IEnumerable<UserDto>>.Success(users
+        return Result<IEnumerable<UserDetailsResponse>>.Success(users
             .Where(u => u.Email != options.Value.Email && u.Email != contextAccessor.GetEmail())
-            .Select(u => new UserDto()
+            .Select(u => new UserDetailsResponse()
         {
             Id = u.Id,
             FirstName = u.FirstName,

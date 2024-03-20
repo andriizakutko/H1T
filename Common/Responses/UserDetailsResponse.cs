@@ -1,6 +1,6 @@
-﻿namespace Common.DTOs;
+﻿namespace Common.Responses;
 
-public class UserInfoDto
+public class UserDetailsResponse
 {
     public Guid Id { get; set; }
     public string FirstName { get; set; }
@@ -10,5 +10,4 @@ public class UserInfoDto
     public string City { get; set; }
     public string Address { get; set; }
     public bool IsActive { get; set; }
-    public ICollection<string> Permissions { get; set; }
 }
