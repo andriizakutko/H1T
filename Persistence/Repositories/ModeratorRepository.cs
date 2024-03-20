@@ -38,4 +38,14 @@ public class ModeratorRepository(ApplicationDbContext context) : IModeratorRepos
     {
         return await context.TransportAdvertisements.Where(x => x.ModeratorOverviewStatus.Id == statusId).ToListAsync();
     }
+
+    public async Task UpdateTransportAdvertisementVerificationStatus(Guid id, bool isVerified)
+    {
+        var transportAdvertisement = await context.TransportAdvertisements.FindAsync(id);
+
+        transportAdvertisement!.IsVerified = isVerified;
+        transportAdvertisement!.UpdatedAt = DateTime.UtcNow;
+
+        await context.SaveChangesAsync();
+    }
 }

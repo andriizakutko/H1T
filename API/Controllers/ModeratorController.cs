@@ -29,4 +29,11 @@ public class ModeratorController(IModeratorService moderatorService) : BaseApiCo
     {
         return HandleResult(await moderatorService.GetTransportAdvertisementByStatusId(statusId));
     }
+
+    [HttpPost("update-transport-advertisement-verification-status")]
+    [HasPermission(Permissions.Moderator)]
+    public async Task<IActionResult> UpdateTransportAdvertisementVerificationStatus(UpdateTransportAdvertisementVerificationStatusRequest request)
+    {
+        return HandleResult(await moderatorService.UpdateTransportAdvertisementVerificationStatus(request));
+    }
 }

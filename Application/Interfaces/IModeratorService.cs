@@ -11,4 +11,5 @@ public interface IModeratorService
     Task<Result<IEnumerable<ModeratorOverviewStatus>>> GetModeratorOverviewStatuses();
     Task<Result> UpdateModeratorOverviewStatus(UpdateAdvertisementStatusRequest request);
     Task<Result<IEnumerable<TransportAdvertisementResult>>> GetTransportAdvertisementByStatusId(Guid statusId);
+    Task<Result> UpdateTransportAdvertisementVerificationStatus(UpdateTransportAdvertisementVerificationStatusRequest request);
 }

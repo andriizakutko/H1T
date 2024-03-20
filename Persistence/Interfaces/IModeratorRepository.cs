@@ -9,4 +9,5 @@ public interface IModeratorRepository
     Task<IEnumerable<ModeratorOverviewStatus>> GetModeratorOverviewStatuses();
     Task UpdateModeratorOverviewStatus(Guid advertisementId, Guid statusId);
     Task<IEnumerable<TransportAdvertisement>> GetTransportAdvertisementsByStatusId(Guid statusId);
+    Task UpdateTransportAdvertisementVerificationStatus(Guid id, bool isVerified);
 }

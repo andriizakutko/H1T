@@ -91,4 +91,20 @@ public class ModeratorService(IModeratorRepository moderatorRepository) : IModer
                 ex.Message));
         }
     }
+
+    public async Task<Result> UpdateTransportAdvertisementVerificationStatus(UpdateTransportAdvertisementVerificationStatusRequest request)
+    {
+        try
+        {
+            await moderatorRepository.UpdateTransportAdvertisementVerificationStatus(request.TransportAdvertisementId,
+                request.IsVerified);
+
+            return Result.Success();
+        }
+        catch (Exception ex)
+        {
+            return Result<IEnumerable<TransportAdvertisementResult>>.Failure(new Error("ModeratorService.SetTransportAdvertisementIsVerified",
+                ex.Message));
+        }
+    }
 }
