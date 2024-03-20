@@ -15,7 +15,7 @@ public class ModeratorController(IModeratorService moderatorService) : BaseApiCo
         return HandleResult(await moderatorService.GetModeratorOverviewStatuses());
     }
 
-    [HttpPost("update-advertisement-status")]
+    [HttpPost("update-transport-advertisement-status")]
     [HasPermission(Permissions.Moderator)]
     public async Task<IActionResult> UpdateAdvertisementStatus(UpdateAdvertisementStatusRequest request)
     {
