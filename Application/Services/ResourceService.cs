@@ -143,7 +143,20 @@ public class ResourceService(
     {
         try
         {
-            return Result<IEnumerable<ModeratorOverviewStatus>>.Success(await repository.GetModeratorOverviewStatuses());
+            var list = cache.Get<IEnumerable<ModeratorOverviewStatus>>(CacheKeys.Moderator.OverviewStatuses);
+
+            if (list is not null)
+            {
+                return Result<IEnumerable<ModeratorOverviewStatus>>.Success(list);
+            }
+
+            var overviewStatuses = await repository.GetModeratorOverviewStatuses();
+
+            list = overviewStatuses.ToList();
+
+            cache.Set(CacheKeys.Moderator.OverviewStatuses, list);
+            
+            return Result<IEnumerable<ModeratorOverviewStatus>>.Success(list);
         }
         catch (Exception ex)
         {

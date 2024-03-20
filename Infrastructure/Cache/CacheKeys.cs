@@ -10,4 +10,8 @@ public static class CacheKeys
         public const string BodyTypes = "transport-body-types";
         public const string Models = "transport-models";
     }
+    public static class Moderator
+    {
+        public const string OverviewStatuses = "moderator-overview-statuses";
+    }
 }
