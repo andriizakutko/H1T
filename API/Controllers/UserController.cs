@@ -7,8 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
-[Route("api/users")]
-public class UsersController(IUserService service) : BaseApiController
+[Route("api/user")]
+public class UserController(IUserService service) : BaseApiController
 {
     [HttpPost("register")]
     [AllowAnonymous]
