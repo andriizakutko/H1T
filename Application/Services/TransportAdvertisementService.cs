@@ -11,7 +11,7 @@ namespace Application.Services;
 
 public class TransportAdvertisementService(
     ITransportAdvertisementRepository transportAdvertisementRepository,
-    ITransportRepository transportRepository,
+    IResourceRepository resourceRepository,
     IImageService imageService,
     IModeratorService moderatorService,
     IUserRepository userRepository) : ITransportAdvertisementService
@@ -98,10 +98,10 @@ public class TransportAdvertisementService(
                 IsVerified = false
             };
 
-            var transportType = await transportRepository.GetTransportTypeById(request.TypeId);
-            var transportMake = await transportRepository.GetTransportMakeById(request.MakeId);
-            var transportModel = await transportRepository.GetTransportModelById(request.ModelId);
-            var transportBodyType = await transportRepository.GetTransportBodyTypeById(request.BodyTypeId);
+            var transportType = await resourceRepository.GetTransportTypeById(request.TypeId);
+            var transportMake = await resourceRepository.GetTransportMakeById(request.MakeId);
+            var transportModel = await resourceRepository.GetTransportModelById(request.ModelId);
+            var transportBodyType = await resourceRepository.GetTransportBodyTypeById(request.BodyTypeId);
             
             var creator = await userRepository.GetByEmail(request.CreatorEmail);
 

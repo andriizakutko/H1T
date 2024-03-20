@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace API.Controllers;
 
 [Route("api/recource")]
-public class ResourceController(ITransportService service) : BaseApiController
+public class ResourceController(IResourceService service) : BaseApiController
 {
     [HttpGet("get-transport-types")]
     [HasPermission(Permissions.User)]
@@ -33,5 +33,12 @@ public class ResourceController(ITransportService service) : BaseApiController
     public async Task<IActionResult> GetTransportModelsByTransportMakeId(Guid transportMakeId)
     {
         return HandleResult(await service.GetTransportModelsByTransportMakeId(transportMakeId));
+    }
+    
+    [HttpGet("get-moderator-overview-statuses")]
+    [HasPermission(Permissions.User)]
+    public async Task<IActionResult> GetModeratorOverviewStatuses()
+    {
+        return HandleResult(await service.GetModeratorOverviewStatuses());
     }
 }

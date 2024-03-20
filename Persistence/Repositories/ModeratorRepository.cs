@@ -14,11 +14,6 @@ public class ModeratorRepository(ApplicationDbContext context) : IModeratorRepos
         return await context.ModeratorOverviewStatuses.FirstAsync(x => x.Name == status);
     }
 
-    public async Task<IEnumerable<ModeratorOverviewStatus>> GetModeratorOverviewStatuses()
-    {
-        return await context.ModeratorOverviewStatuses.ToListAsync();
-    }
-
     public async Task UpdateModeratorOverviewStatus(Guid advertisementId, Guid statusId)
     {
         var advertisement = await context.TransportAdvertisements.FindAsync(advertisementId);

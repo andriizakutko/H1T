@@ -1,14 +1,15 @@
 ﻿using Application.Interfaces;
 using Common.Results;
 using Common.ServiceResults;
+using Domain;
 using Infrastructure.Cache;
 using Persistence.Interfaces;
 
 namespace Application.Services;
 
-public class TransportService(
-    ITransportRepository repository,
-    ICacheProvider cache) : ITransportService
+public class ResourceService(
+    IResourceRepository repository,
+    ICacheProvider cache) : IResourceService
 {
     public async Task<Result<IEnumerable<ValueResult>>> GetTransportTypes()
     {
@@ -135,6 +136,19 @@ public class TransportService(
         {
             return Result<IEnumerable<ValueResult>>.Failure(
                 new Error("TransportService.GetTransportModelsByTransportMakeId", ex.Message));
+        }
+    }
+
+    public async Task<Result<IEnumerable<ModeratorOverviewStatus>>> GetModeratorOverviewStatuses()
+    {
+        try
+        {
+            return Result<IEnumerable<ModeratorOverviewStatus>>.Success(await repository.GetModeratorOverviewStatuses());
+        }
+        catch (Exception ex)
+        {
+            return Result<IEnumerable<ModeratorOverviewStatus>>.Failure(new Error("ModeratorService.GetModeratorOverviewStatuses",
+                ex.Message));
         }
     }
 }

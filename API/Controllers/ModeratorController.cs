@@ -8,13 +8,6 @@ namespace API.Controllers;
 [Route("api/moderator")]
 public class ModeratorController(IModeratorService moderatorService) : BaseApiController
 {
-    [HttpGet("get-moderator-overview-statuses")]
-    [HasPermission(Permissions.Moderator)]
-    public async Task<IActionResult> GetModeratorOverviewStatuses()
-    {
-        return HandleResult(await moderatorService.GetModeratorOverviewStatuses());
-    }
-
     [HttpPost("update-transport-advertisement-status")]
     [HasPermission(Permissions.Moderator)]
     public async Task<IActionResult> UpdateAdvertisementStatus(UpdateAdvertisementStatusRequest request)

@@ -23,7 +23,7 @@ public static class Register
     {
         services.AddTransient<IUserRepository, UserRepository>();
         services.AddTransient<IPermissionRepository, PermissionRepository>();
-        services.AddTransient<ITransportRepository, TransportRepository>();
+        services.AddTransient<IResourceRepository, ResourceRepository>();
         services.AddTransient<ITransportAdvertisementRepository, TransportAdvertisementRepository>();
         services.AddTransient<IImageRepository, ImageRepository>();
         services.AddTransient<IModeratorRepository, ModeratorRepository>();
@@ -37,7 +37,7 @@ public static class Register
         services.AddTransient<IJwtService, JwtService>();
         services.AddTransient<IAdminService, AdminService>();
         services.AddTransient<IPermissionService, PermissionService>();
-        services.AddTransient<ITransportService, TransportService>();
+        services.AddTransient<IResourceService, ResourceService>();
         services.AddTransient<ITransportAdvertisementService, TransportAdvertisementService>();
         services.AddTransient<IImageService, ImageService>();
         services.AddTransient<IModeratorService, ModeratorService>();

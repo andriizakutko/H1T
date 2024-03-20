@@ -1,11 +1,12 @@
-﻿using Domain.Transport;
+﻿using Domain;
+using Domain.Transport;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Interfaces;
 
 namespace Persistence.Repositories;
 
-public class TransportRepository(ApplicationDbContext context) : ITransportRepository
+public class ResourceRepository(ApplicationDbContext context) : IResourceRepository
 {
     public async Task<IEnumerable<TransportType>> GetTransportTypes()
     {
@@ -30,5 +31,10 @@ public class TransportRepository(ApplicationDbContext context) : ITransportRepos
     public async Task<TransportBodyType> GetTransportBodyTypeById(Guid id)
     {
         return await context.TransportBodyTypes.FindAsync(id);
+    }
+
+    public async Task<IEnumerable<ModeratorOverviewStatus>> GetModeratorOverviewStatuses()
+    {
+        return await context.ModeratorOverviewStatuses.ToListAsync();
     }
 }

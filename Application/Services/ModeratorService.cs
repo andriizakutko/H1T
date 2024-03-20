@@ -22,19 +22,6 @@ public class ModeratorService(IModeratorRepository moderatorRepository) : IModer
         }
     }
 
-    public async Task<Result<IEnumerable<ModeratorOverviewStatus>>> GetModeratorOverviewStatuses()
-    {
-        try
-        {
-            return Result<IEnumerable<ModeratorOverviewStatus>>.Success(await moderatorRepository.GetModeratorOverviewStatuses());
-        }
-        catch (Exception ex)
-        {
-            return Result<IEnumerable<ModeratorOverviewStatus>>.Failure(new Error("ModeratorService.GetModeratorOverviewStatuses",
-                ex.Message));
-        }
-    }
-
     public async Task<Result> UpdateModeratorOverviewStatus(UpdateAdvertisementStatusRequest request)
     {
         try
