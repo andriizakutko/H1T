@@ -1,22 +1,37 @@
 ﻿using Application.Interfaces;
 using Common.Results;
 using Common.ServiceResults;
+using Infrastructure.Cache;
 using Persistence.Interfaces;
 
 namespace Application.Services;
 
-public class TransportService(ITransportRepository repository) : ITransportService
+public class TransportService(
+    ITransportRepository repository,
+    ICacheProvider cache) : ITransportService
 {
     public async Task<Result<IEnumerable<ValueResult>>> GetTransportTypes()
     {
         try
         {
-            var list = await repository.GetTransportTypes();
-            return Result<IEnumerable<ValueResult>>.Success(list.Select(x => new ValueResult()
+            var list = cache.Get<IEnumerable<ValueResult>>(CacheKeys.Transport.Types);
+
+            if (list is not null)
+            {
+                return Result<IEnumerable<ValueResult>>.Success(list);
+            }
+            
+            var transportTypes = await repository.GetTransportTypes();
+                
+            list = transportTypes.Select(x => new ValueResult
             {
                 Id = x.Id,
                 Name = x.Name
-            }).ToList());
+            }).ToList();
+                
+            cache.Set(CacheKeys.Transport.Types, list);
+
+            return Result<IEnumerable<ValueResult>>.Success(list);
         }
         catch (Exception ex)
         {
@@ -28,14 +43,27 @@ public class TransportService(ITransportRepository repository) : ITransportServi
     {
         try
         {
+            var key = $"{CacheKeys.Transport.Makes}-{id}";
+            
+            var list = cache.Get<IEnumerable<ValueResult>>(key);
+
+            if (list is not null)
+            {
+                return Result<IEnumerable<ValueResult>>.Success(list);
+            }
+            
             var transportType = await repository.GetTransportTypeById(id);
 
-            return Result<IEnumerable<ValueResult>>.Success(transportType.TransportTypeMakes.Select(x =>
+            list = transportType.TransportTypeMakes.Select(x =>
                 new ValueResult()
                 {
                     Id = x.TransportMake.Id,
                     Name = x.TransportMake.Name
-                }));
+                }).ToList();
+            
+            cache.Set(key, list);
+
+            return Result<IEnumerable<ValueResult>>.Success(list);
         }
         catch (Exception ex)
         {
@@ -48,14 +76,27 @@ public class TransportService(ITransportRepository repository) : ITransportServi
     {
         try
         {
-            var transportType = await repository.GetTransportTypeById(id);
+            var key = $"{CacheKeys.Transport.BodyTypes}-{id}";
+
+            var list = cache.Get<IEnumerable<ValueResult>>(key);
+
+            if (list is not null)
+            {
+                return Result<IEnumerable<ValueResult>>.Success(list);
+            }
             
-            return Result<IEnumerable<ValueResult>>.Success(transportType.TransportTypeBodyTypes.Select(x =>
+            var transportType = await repository.GetTransportTypeById(id);
+
+            list = transportType.TransportTypeBodyTypes.Select(x =>
                 new ValueResult()
                 {
                     Id = x.TransportBodyType.Id,
                     Name = x.TransportBodyType.Name
-                }));
+                }).ToList();
+            
+            cache.Set(key, list);
+            
+            return Result<IEnumerable<ValueResult>>.Success(list);
         }
         catch (Exception ex)
         {
@@ -68,14 +109,27 @@ public class TransportService(ITransportRepository repository) : ITransportServi
     {
         try
         {
-            var transportMake = await repository.GetTransportMakeById(id);
+            var key = $"{CacheKeys.Transport.Models}-{id}";
+
+            var list = cache.Get<IEnumerable<ValueResult>>(key);
+
+            if (list is not null)
+            {
+                return Result<IEnumerable<ValueResult>>.Success(list);
+            }
             
-            return Result<IEnumerable<ValueResult>>.Success(transportMake.TransportMakeModels.Select(x =>
+            var transportMake = await repository.GetTransportMakeById(id);
+
+            list = transportMake.TransportMakeModels.Select(x =>
                 new ValueResult()
                 {
                     Id = x.TransportModel.Id,
                     Name = x.TransportModel.Name
-                }));
+                }).ToList();
+            
+            cache.Set(key, list);
+            
+            return Result<IEnumerable<ValueResult>>.Success(list);
         }
         catch (Exception ex)
         {

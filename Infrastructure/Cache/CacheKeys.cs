@@ -1,6 +1,12 @@
 ﻿namespace Infrastructure.Cache;
 
-public class CacheKeys
+public static class CacheKeys
 {
-    
+    public static class Transport
+    {
+        public const string Types = "transport-types";
+        public const string Makes = "transport-makes";
+        public const string BodyTypes = "transport-body-types";
+        public const string Models = "transport-models";
+    }
 }
