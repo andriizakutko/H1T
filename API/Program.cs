@@ -59,7 +59,7 @@ var hashingService = services.GetService<IPasswordHashingService>();
 var adminOptions = services.GetService<IOptions<AdminOptions>>().Value;
 await SeedData.SeedSysAdminAndPermissionsData(context, hashingService, adminOptions);
 await SeedData.SeedModeratorOverviewStatuses(context);
-await SeedData.SeedTransportCommonData(context);
+await SeedData.SeedResources(context);
 
 app.UseHttpsRedirection();
 

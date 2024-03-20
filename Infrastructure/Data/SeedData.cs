@@ -65,7 +65,7 @@ public static class SeedData
         await context.SaveChangesAsync();
     }
 
-    public static async Task SeedTransportCommonData(ApplicationDbContext context)
+    public static async Task SeedResources(ApplicationDbContext context)
     {
         if(await context.TransportTypes.AnyAsync()) return;
         
