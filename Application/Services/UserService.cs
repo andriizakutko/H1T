@@ -113,13 +113,6 @@ public class UserService(
 
     private async Task AddUserToDefaultPermission(User user)
     {
-        try
-        {
-            await adminService.AddUserToPermission(user, Permissions.User);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex.Message);
-        }
+        await adminService.AddUserToPermission(user, Permissions.User);
     }
 }
