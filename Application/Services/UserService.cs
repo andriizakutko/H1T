@@ -47,6 +47,7 @@ public class UserService(
             if (createdUser is null) return Result.Failure(new Error(ErrorCodes.User.Register, ErrorMessages.User.UserNotCreated));
             
             await AddUserToDefaultPermission(createdUser);
+            
             return Result.Success();
         }
         catch (Exception ex)
