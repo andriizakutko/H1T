@@ -1,11 +1,14 @@
 using Application.Interfaces;
 using Common.Results;
 using Domain;
+using Microsoft.Extensions.Logging;
 using Persistence.Interfaces;
 
 namespace Application.Services;
 
-public class ImageService(IImageRepository imageRepository) : IImageService
+public class ImageService(
+    IImageRepository imageRepository,
+    ILogger logger) : IImageService
 {
     public async Task<Result> AddImage(Image img)
     {
@@ -16,7 +19,8 @@ public class ImageService(IImageRepository imageRepository) : IImageService
         }
         catch (Exception ex)
         {
-            return Result.Failure(new Error("ImageService.AddImage", ex.Message));
+            logger.LogError(ex.Message);
+            return Result.Failure(new Error(ErrorCodes.Image.AddImage, ErrorMessages.ServiceError));
         }
     }
 
@@ -29,7 +33,8 @@ public class ImageService(IImageRepository imageRepository) : IImageService
         }
         catch (Exception ex)
         {
-            return Result.Failure(new Error("ImageService.AddImages", ex.Message));
+            logger.LogError(ex.Message);
+            return Result.Failure(new Error(ErrorCodes.Image.AddImages, ErrorMessages.ServiceError));
         }
     }
 }

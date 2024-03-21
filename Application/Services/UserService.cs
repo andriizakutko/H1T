@@ -5,6 +5,7 @@ using Common.Results;
 using Domain;
 using Infrastructure.Authentication;
 using Infrastructure.PasswordHashing;
+using Microsoft.Extensions.Logging;
 using Persistence.Interfaces;
 
 namespace Application.Services;
@@ -14,7 +15,8 @@ public class UserService(
         IUserValidationService validationService,
         IPasswordHashingService passwordHashingService,
         IJwtService jwtService,
-        IAdminService adminService)
+        IAdminService adminService,
+        ILogger logger)
     : IUserService
 {
     public async Task<Result> Register(RegisterRequest registerRequest)
@@ -42,14 +44,15 @@ public class UserService(
         
             var createdUser = await repository.Create(user);
 
-            if (createdUser is null) return Result.Failure(new Error("UserService.Register", "User was not created"));
+            if (createdUser is null) return Result.Failure(new Error(ErrorCodes.User.Register, ErrorMessages.User.UserNotCreated));
             
             await AddUserToDefaultPermission(createdUser);
             return Result.Success();
         }
-        catch
+        catch (Exception ex)
         {
-            return Result.Failure(new Error("UserService.Register", "Server error"));
+            logger.LogError(ex.Message);
+            return Result.Failure(new Error(ErrorCodes.User.Register, ErrorMessages.ServiceError));
         }
     }
 
@@ -71,36 +74,52 @@ public class UserService(
                 Token = await jwtService.Generate(user)
             });
         }
-        catch
+        catch (Exception ex)
         {
-            return Result<TokenResponse>.Failure(new Error("UserService.Login", "Server error"));
+            logger.LogError(ex.Message);
+            return Result<TokenResponse>.Failure(new Error(ErrorCodes.User.Login, ErrorMessages.ServiceError));
         }
     }
 
     public async Task<Result<UserInfoResponse>> GetUser(string email)
     {
-        var user = await repository.GetByEmail(email);
-
-        if (user is null) return Result<UserInfoResponse>.Failure(new Error("UserService.GetUser", "User was not found"));
-
-        var userPermissions = await repository.GetUserPermissions(email);
-
-        return Result<UserInfoResponse>.Success(new UserInfoResponse()
+        try
         {
-            Id = user.Id,
-            FirstName = user.FirstName,
-            LastName = user.LastName,
-            Email = user.Email,
-            Country = user.Country,
-            City = user.City,
-            Address = user.Address,
-            IsActive = user.IsActive,
-            Permissions = userPermissions.Select(p => p.Permission.Name).ToArray()
-        });
+            var user = await repository.GetByEmail(email);
+
+            if (user is null) return Result<UserInfoResponse>.Failure(new Error(ErrorCodes.User.GetUser, ErrorMessages.User.UserNotFound));
+
+            var userPermissions = await repository.GetUserPermissions(email);
+
+            return Result<UserInfoResponse>.Success(new UserInfoResponse()
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                Country = user.Country,
+                City = user.City,
+                Address = user.Address,
+                IsActive = user.IsActive,
+                Permissions = userPermissions.Select(p => p.Permission.Name).ToArray()
+            });
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex.Message);
+            return Result<UserInfoResponse>.Failure(new Error(ErrorCodes.User.GetUser, ErrorMessages.ServiceError));
+        }
     }
 
     private async Task AddUserToDefaultPermission(User user)
     {
-        await adminService.AddUserToPermission(user, Permissions.User);
+        try
+        {
+            await adminService.AddUserToPermission(user, Permissions.User);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex.Message);
+        }
     }
 }

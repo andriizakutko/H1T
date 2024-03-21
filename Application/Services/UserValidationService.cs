@@ -2,12 +2,15 @@
 using Common.Requests;
 using Common.Results;
 using Infrastructure.PasswordHashing;
+using Microsoft.Extensions.Logging;
 using Persistence.Interfaces;
 
 namespace Application.Services;
 
-public class UserValidationService(IUserRepository repository, IPasswordHashingService passwordHashingService)
-    : IUserValidationService
+public class UserValidationService(
+        IUserRepository repository, 
+        IPasswordHashingService passwordHashingService,
+        ILogger logger) : IUserValidationService
 {
     public async Task<Result> ValidateRegisterModel(RegisterRequest registerRequest)
     {
@@ -15,14 +18,15 @@ public class UserValidationService(IUserRepository repository, IPasswordHashingS
         {
             if (await repository.IsEmailExist(registerRequest.Email))
             {
-                return Result.Failure(new Error("UserValidationService.ValidateRegisterModel", "User already exists with this email"));
+                return Result.Failure(new Error(ErrorCodes.UserValidation.ValidateRegisterModel, ErrorMessages.User.UserAlreadyExist));
             }
         
             return Result.Success();
         }
-        catch
+        catch (Exception ex)
         {
-            return Result.Failure(new Error("UserValidationService.ValidateRegisterModel", "Server error"));
+            logger.LogError(ex.Message);
+            return Result.Failure(new Error(ErrorCodes.UserValidation.ValidateRegisterModel, ErrorMessages.ServiceError));
         }
     }
 
@@ -32,26 +36,27 @@ public class UserValidationService(IUserRepository repository, IPasswordHashingS
         {
             if (!await repository.IsEmailExist(loginRequest.Email))
             {
-                return Result.Failure(new Error("UserValidationService.ValidateLoginModel", "Incorrect credentials"));
+                return Result.Failure(new Error(ErrorCodes.UserValidation.ValidateLoginModel, ErrorMessages.UserValidation.IncorrectCredentials));
             }
 
             var user = await repository.GetByEmail(loginRequest.Email);
 
             if (!passwordHashingService.VerifyPassword(loginRequest.Password, user.Password, user.Salt))
             {
-                return Result.Failure(new Error("UserValidationService.ValidateLoginModel", "Incorrect credentials"));
+                return Result.Failure(new Error(ErrorCodes.UserValidation.ValidateLoginModel, ErrorMessages.UserValidation.IncorrectCredentials));
             }
 
             if (!user.IsActive)
             {
-                return Result.Failure(new Error("UserValidationService.ValidateLoginModel", "User is not active"));
+                return Result.Failure(new Error(ErrorCodes.UserValidation.ValidateLoginModel, ErrorMessages.User.UserNotActive));
             }
 
             return Result.Success();
         }
-        catch
+        catch (Exception ex)
         {
-            return Result.Failure(new Error("UserValidationService.ValidateLoginModel", "Server error"));
+            logger.LogError(ex.Message);
+            return Result.Failure(new Error(ErrorCodes.UserValidation.ValidateLoginModel, ErrorMessages.ServiceError));
         }
     }
 }

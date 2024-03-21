@@ -3,13 +3,15 @@ using Common.Results;
 using Common.ServiceResults;
 using Domain;
 using Infrastructure.Cache;
+using Microsoft.Extensions.Logging;
 using Persistence.Interfaces;
 
 namespace Application.Services;
 
 public class ResourceService(
     IResourceRepository repository,
-    ICacheProvider cache) : IResourceService
+    ICacheProvider cache,
+    ILogger logger) : IResourceService
 {
     public async Task<Result<IEnumerable<ValueResult>>> GetTransportTypes()
     {
@@ -36,7 +38,8 @@ public class ResourceService(
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<ValueResult>>.Failure(new Error("TransportService.GetTransportTypes", ex.Message));
+            logger.LogError(ex.Message);
+            return Result<IEnumerable<ValueResult>>.Failure(new Error(ErrorCodes.Resource.GetTransportTypes, ErrorMessages.ServiceError));
         }
     }
 
@@ -68,8 +71,9 @@ public class ResourceService(
         }
         catch (Exception ex)
         {
+            logger.LogError(ex.Message);
             return Result<IEnumerable<ValueResult>>.Failure(
-                new Error("TransportService.GetTransportMakesByTransportTypeId", ex.Message));
+                new Error(ErrorCodes.Resource.GetTransportMakesByTransportTypeId, ErrorMessages.ServiceError));
         }
     }
 
@@ -101,8 +105,9 @@ public class ResourceService(
         }
         catch (Exception ex)
         {
+            logger.LogError(ex.Message);
             return Result<IEnumerable<ValueResult>>.Failure(
-                new Error("TransportService.GetTransportBodyTypesByTransportTypeId", ex.Message));
+                new Error(ErrorCodes.Resource.GetTransportBodyTypesByTransportTypeId, ErrorMessages.ServiceError));
         }
     }
 
@@ -134,8 +139,9 @@ public class ResourceService(
         }
         catch (Exception ex)
         {
+            logger.LogError(ex.Message);
             return Result<IEnumerable<ValueResult>>.Failure(
-                new Error("TransportService.GetTransportModelsByTransportMakeId", ex.Message));
+                new Error(ErrorCodes.Resource.GetTransportModelsByTransportMakeId, ErrorMessages.ServiceError));
         }
     }
 
@@ -160,8 +166,9 @@ public class ResourceService(
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<ModeratorOverviewStatus>>.Failure(new Error("ModeratorService.GetModeratorOverviewStatuses",
-                ex.Message));
+            logger.LogError(ex.Message);
+            return Result<IEnumerable<ModeratorOverviewStatus>>.Failure(new Error(ErrorCodes.Resource.GetModeratorOverviewStatuses,
+                ErrorMessages.ServiceError));
         }
     }
 }

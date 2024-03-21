@@ -5,6 +5,7 @@ using Common.ServiceResults;
 using Domain;
 using Domain.Enums;
 using Domain.Transport;
+using Microsoft.Extensions.Logging;
 using Persistence.Interfaces;
 
 namespace Application.Services;
@@ -14,7 +15,8 @@ public class TransportAdvertisementService(
     IResourceRepository resourceRepository,
     IImageService imageService,
     IModeratorService moderatorService,
-    IUserRepository userRepository) : ITransportAdvertisementService
+    IUserRepository userRepository,
+    ILogger logger) : ITransportAdvertisementService
 {
     public async Task<Result<IEnumerable<TransportAdvertisementResult>>> GetTransportAdvertisements()
     {
@@ -56,8 +58,9 @@ public class TransportAdvertisementService(
         }
         catch (Exception ex)
         {
+            logger.LogError(ex.Message);
             return Result<IEnumerable<TransportAdvertisementResult>>.Failure(
-                new Error("AdvertisementService.GetTransportAdvertisements", ex.Message));
+                new Error(ErrorCodes.TransportAdvertisement.GetTransportAdvertisements, ErrorMessages.ServiceError));
         }
     }
 
@@ -106,8 +109,8 @@ public class TransportAdvertisementService(
             var creator = await userRepository.GetByEmail(request.CreatorEmail);
 
             if (creator is null)
-                return Result.Failure(new Error("TransportAdvertisementService.CreateTransportAdvertisement",
-                    "Creator was not found"));
+                return Result.Failure(new Error(ErrorCodes.TransportAdvertisement.CreateTransportAdvertisement,
+                    ErrorMessages.TransportAdvertisement.CreatorNotFound));
 
             transportAdvertisementModelToCreate.Type = transportType;
             transportAdvertisementModelToCreate.Make = transportMake;
@@ -127,7 +130,8 @@ public class TransportAdvertisementService(
         }
         catch (Exception ex)
         {
-            return Result.Failure(new Error("AdvertisementService.CreateTransportAdvertisement", ex.Message));
+            logger.LogError(ex.Message);
+            return Result.Failure(new Error(ErrorCodes.TransportAdvertisement.CreateTransportAdvertisement, ErrorMessages.ServiceError));
         }
     }
 
@@ -140,7 +144,9 @@ public class TransportAdvertisementService(
         }
         catch (Exception ex)
         {
-            return Result<TransportAdvertisement>.Failure(new Error("AdvertisementService.GetTransportAdvertisementById", ex.Message));
+            logger.LogError(ex.Message);
+            return Result<TransportAdvertisement>
+                .Failure(new Error(ErrorCodes.TransportAdvertisement.GetTransportAdvertisementById, ErrorMessages.ServiceError));
         }
     }
 }

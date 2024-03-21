@@ -3,11 +3,14 @@ using Common.Requests;
 using Common.Results;
 using Common.ServiceResults;
 using Domain;
+using Microsoft.Extensions.Logging;
 using Persistence.Interfaces;
 
 namespace Application.Services;
 
-public class ModeratorService(IModeratorRepository moderatorRepository) : IModeratorService
+public class ModeratorService(
+    IModeratorRepository moderatorRepository,
+    ILogger logger) : IModeratorService
 {
     public async Task<Result<ModeratorOverviewStatus>> GetModeratorOverviewStatusByName(string status)
     {
@@ -17,8 +20,9 @@ public class ModeratorService(IModeratorRepository moderatorRepository) : IModer
         }
         catch (Exception ex)
         {
-            return Result<ModeratorOverviewStatus>.Failure(new Error("ModeratorService.GetModeratorOverviewStatusById",
-                ex.Message));
+            logger.LogError(ex.Message);
+            return Result<ModeratorOverviewStatus>.Failure(new Error(ErrorCodes.Moderator.GetModeratorOverviewStatusByName,
+                ErrorMessages.ServiceError));
         }
     }
 
@@ -31,8 +35,9 @@ public class ModeratorService(IModeratorRepository moderatorRepository) : IModer
         }
         catch (Exception ex)
         {
-            return Result.Failure(new Error("ModeratorService.UpdateModeratorOverviewStatus",
-                ex.Message));
+            logger.LogError(ex.Message);
+            return Result.Failure(new Error(ErrorCodes.Moderator.UpdateModeratorOverviewStatus,
+                ErrorMessages.ServiceError));
         }
     }
 
@@ -74,8 +79,9 @@ public class ModeratorService(IModeratorRepository moderatorRepository) : IModer
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<TransportAdvertisementResult>>.Failure(new Error("ModeratorService.GetTransportAdvertisementByStatusId",
-                ex.Message));
+            logger.LogError(ex.Message);
+            return Result<IEnumerable<TransportAdvertisementResult>>.Failure(new Error(ErrorCodes.Moderator.GetTransportAdvertisementByStatusId,
+                ErrorMessages.ServiceError));
         }
     }
 
@@ -90,8 +96,9 @@ public class ModeratorService(IModeratorRepository moderatorRepository) : IModer
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<TransportAdvertisementResult>>.Failure(new Error("ModeratorService.SetTransportAdvertisementIsVerified",
-                ex.Message));
+            logger.LogError(ex.Message);
+            return Result<IEnumerable<TransportAdvertisementResult>>.Failure(new Error(ErrorCodes.Moderator.UpdateTransportAdvertisementVerificationStatus,
+                ErrorMessages.ServiceError));
         }
     }
 }
