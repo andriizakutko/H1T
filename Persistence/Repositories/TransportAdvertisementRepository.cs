@@ -31,13 +31,4 @@ public class TransportAdvertisementRepository(ApplicationDbContext context) : IT
     {
         return await context.TransportAdvertisements.FindAsync(id);
     }
-
-    public async Task UpdateTransportAdvertisementStatus(Guid id, string status)
-    {
-        var transportAdvertisement = await context.TransportAdvertisements.FindAsync(id);
-
-        ///transportAdvertisement!.ModeratorOverviewStatus = status;
-
-        await context.SaveChangesAsync();
-    }
 }
