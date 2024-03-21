@@ -46,9 +46,11 @@ public class UserService(
 
             if (createdUser is null) return Result.Failure(new Error(ErrorCodes.User.Register, ErrorMessages.User.UserNotCreated));
             
-            await adminService.AddUserToPermission(createdUser.Email, Permissions.User);
-            
-            return Result.Success();
+            var result = await adminService.AddUserToPermission(createdUser.Email, Permissions.User);
+
+            return result.IsFailure 
+                ? Result.Failure(result.Error) 
+                : Result.Success();
         }
         catch (Exception ex)
         {

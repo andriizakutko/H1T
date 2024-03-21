@@ -3,6 +3,7 @@ using Application.Services;
 using Common.Requests;
 using Common.Results;
 using Domain;
+using Infrastructure.Authentication;
 using Infrastructure.PasswordHashing;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -19,6 +20,9 @@ public class UserServiceTests
     private Mock<IJwtService> _mockJwtService;
     private Mock<IAdminService> _mockAdminService;
     private Mock<ILogger> _mockLogger;
+
+    private LoginRequest _loginRequest;
+    private RegisterRequest _registerRequest;
     
     [SetUp]
     public void Setup()
@@ -37,13 +41,14 @@ public class UserServiceTests
             _mockJwtService.Object,
             _mockAdminService.Object,
             _mockLogger.Object);
-    }
 
-    [Test]
-    public async Task Register_ReturnsFailed_UserAlreadyExists()
-    {
-        //Assign
-        var registerRequest = new RegisterRequest()
+        _loginRequest = new LoginRequest()
+        {
+            Email = "test@test.com",
+            Password = "password"
+        };
+        
+        _registerRequest = new RegisterRequest()
         {
             FirstName = "John",
             LastName = "Doe",
@@ -53,32 +58,37 @@ public class UserServiceTests
             City = "New York",
             Address = "123 Street"
         };
+    }
 
-        _mockUserValidationService.Setup(x => x.ValidateRegisterModel(registerRequest))
+    [Test]
+    public async Task Register_ReturnsFailed_UserAlreadyExists()
+    {
+        //Assign
+        _mockUserValidationService.Setup(x => x.ValidateRegisterModel(_registerRequest))
             .ReturnsAsync(Result.Failure(new Error(ErrorCodes.UserValidation.ValidateRegisterModel, ErrorMessages.User.UserAlreadyExist)));
 
         var hashedPassword = "hashedPassword";
         byte[]? salt = default;
         
-        _mockPasswordHashingService.Setup(x => x.HashPassword(registerRequest.Password, out salt))
+        _mockPasswordHashingService.Setup(x => x.HashPassword(_registerRequest.Password, out salt))
             .Returns(hashedPassword);
 
         var createdUser = new User
         {
-            FirstName = registerRequest.FirstName,
-            LastName = registerRequest.LastName,
-            Email = registerRequest.Email,
+            FirstName = _registerRequest.FirstName,
+            LastName = _registerRequest.LastName,
+            Email = _registerRequest.Email,
             Password = hashedPassword,
             Salt = salt,
-            Country = registerRequest.Country,
-            City = registerRequest.City,
-            Address = registerRequest.Address
+            Country = _registerRequest.Country,
+            City = _registerRequest.City,
+            Address = _registerRequest.Address
         };
 
         _mockUserRepository.Setup(x => x.Create(It.IsAny<User>())).ReturnsAsync(createdUser);
         
         //Act
-        var result = await _userService.Register(registerRequest);
+        var result = await _userService.Register(_registerRequest);
         
         //Assert
         Assert.That(
@@ -92,41 +102,33 @@ public class UserServiceTests
     public async Task Register_ReturnsSuccess_UserCreated()
     {
         //Assign
-        var registerRequest = new RegisterRequest()
-        {
-            FirstName = "John",
-            LastName = "Doe",
-            Email = "john.doe@example.com",
-            Password = "password123",
-            Country = "USA",
-            City = "New York",
-            Address = "123 Street"
-        };
-
-        _mockUserValidationService.Setup(x => x.ValidateRegisterModel(registerRequest)).ReturnsAsync(Result.Success());
+        _mockUserValidationService.Setup(x => x.ValidateRegisterModel(_registerRequest)).ReturnsAsync(Result.Success());
 
         var hashedPassword = "hashedPassword";
         byte[]? salt = default;
         
-        _mockPasswordHashingService.Setup(x => x.HashPassword(registerRequest.Password, out salt))
+        _mockPasswordHashingService.Setup(x => x.HashPassword(_registerRequest.Password, out salt))
             .Returns(hashedPassword);
 
         var createdUser = new User
         {
-            FirstName = registerRequest.FirstName,
-            LastName = registerRequest.LastName,
-            Email = registerRequest.Email,
+            FirstName = _registerRequest.FirstName,
+            LastName = _registerRequest.LastName,
+            Email = _registerRequest.Email,
             Password = hashedPassword,
             Salt = salt,
-            Country = registerRequest.Country,
-            City = registerRequest.City,
-            Address = registerRequest.Address
+            Country = _registerRequest.Country,
+            City = _registerRequest.City,
+            Address = _registerRequest.Address
         };
 
         _mockUserRepository.Setup(x => x.Create(It.IsAny<User>())).ReturnsAsync(createdUser);
+
+        _mockAdminService.Setup(x => x.AddUserToPermission(createdUser.Email, Permissions.User))
+            .ReturnsAsync(Result.Success());
         
         //Act
-        var result = await _userService.Register(registerRequest);
+        var result = await _userService.Register(_registerRequest);
         
         //Assert
         Assert.That(result.IsSuccess, Is.True);
@@ -136,43 +138,32 @@ public class UserServiceTests
     public async Task Register_ReturnsFailed_UserValidationServiceError()
     {
         //Assign
-        var registerRequest = new RegisterRequest()
-        {
-            FirstName = "John",
-            LastName = "Doe",
-            Email = "john.doe@example.com",
-            Password = "password123",
-            Country = "USA",
-            City = "New York",
-            Address = "123 Street"
-        };
-
-        _mockUserValidationService.Setup(x => x.ValidateRegisterModel(registerRequest))
+        _mockUserValidationService.Setup(x => x.ValidateRegisterModel(_registerRequest))
             .ReturnsAsync(Result.Failure(new Error(ErrorCodes.UserValidation.ValidateRegisterModel, ErrorMessages.ServiceError)));
 
         var hashedPassword = "hashedPassword";
         byte[]? salt = default;
         
-        _mockPasswordHashingService.Setup(x => x.HashPassword(registerRequest.Password, out salt))
+        _mockPasswordHashingService.Setup(x => x.HashPassword(_registerRequest.Password, out salt))
             .Returns(hashedPassword);
 
         var createdUser = new User
         {
-            FirstName = registerRequest.FirstName,
-            LastName = registerRequest.LastName,
-            Email = registerRequest.Email,
+            FirstName = _registerRequest.FirstName,
+            LastName = _registerRequest.LastName,
+            Email = _registerRequest.Email,
             Password = hashedPassword,
             Salt = salt,
-            Country = registerRequest.Country,
-            City = registerRequest.City,
-            Address = registerRequest.Address
+            Country = _registerRequest.Country,
+            City = _registerRequest.City,
+            Address = _registerRequest.Address
         };
 
         _mockUserRepository.Setup(x => x.Create(It.IsAny<User>()))
             .ReturnsAsync(createdUser);
         
         //Act
-        var result = await _userService.Register(registerRequest);
+        var result = await _userService.Register(_registerRequest);
         
         //Assert
         Assert.That(
@@ -180,6 +171,92 @@ public class UserServiceTests
             && result.Error is 
             { Code: ErrorCodes.UserValidation.ValidateRegisterModel, 
                 Message: ErrorMessages.ServiceError }, Is.True);
+    }
+    
+    [Test]
+    public async Task Register_ReturnsFailed_FailedAddUserToPermission_PermissionHasAlreadyAdded()
+    {
+        //Assign
+        _mockUserValidationService.Setup(x => x.ValidateRegisterModel(_registerRequest))
+            .ReturnsAsync(Result.Failure(new Error(ErrorCodes.Admin.AddUserToPermission,
+                ErrorMessages.Admin.PermissionHasAlreadyAdded)));
+
+        var hashedPassword = "hashedPassword";
+        byte[]? salt = default;
+        
+        _mockPasswordHashingService.Setup(x => x.HashPassword(_registerRequest.Password, out salt))
+            .Returns(hashedPassword);
+
+        var createdUser = new User
+        {
+            FirstName = _registerRequest.FirstName,
+            LastName = _registerRequest.LastName,
+            Email = _registerRequest.Email,
+            Password = hashedPassword,
+            Salt = salt,
+            Country = _registerRequest.Country,
+            City = _registerRequest.City,
+            Address = _registerRequest.Address
+        };
+
+        _mockUserRepository.Setup(x => x.Create(It.IsAny<User>()))
+            .ReturnsAsync(createdUser);
+
+        _mockAdminService.Setup(x => x.AddUserToPermission(createdUser.Email, Permissions.User))
+            .ReturnsAsync(Result.Failure(new Error(ErrorCodes.Admin.AddUserToPermission,
+                ErrorMessages.Admin.PermissionHasAlreadyAdded)));
+        
+        //Act
+        var result = await _userService.Register(_registerRequest);
+        
+        //Assert
+        Assert.That(
+            result.IsFailure
+            && result.Error is 
+            { Code: ErrorCodes.Admin.AddUserToPermission, 
+                Message: ErrorMessages.Admin.PermissionHasAlreadyAdded }, Is.True);
+    }
+    
+    [Test]
+    public async Task Register_ReturnsFailed_FailedAddUserToPermission_UserNotExists()
+    {
+        //Assign
+        _mockUserValidationService.Setup(x => x.ValidateRegisterModel(_registerRequest))
+            .ReturnsAsync(Result.Failure(new Error(ErrorCodes.Admin.AddUserToPermission, ErrorMessages.User.UserNotExists)));
+
+        var hashedPassword = "hashedPassword";
+        byte[]? salt = default;
+        
+        _mockPasswordHashingService.Setup(x => x.HashPassword(_registerRequest.Password, out salt))
+            .Returns(hashedPassword);
+
+        var createdUser = new User
+        {
+            FirstName = _registerRequest.FirstName,
+            LastName = _registerRequest.LastName,
+            Email = _registerRequest.Email,
+            Password = hashedPassword,
+            Salt = salt,
+            Country = _registerRequest.Country,
+            City = _registerRequest.City,
+            Address = _registerRequest.Address
+        };
+
+        _mockUserRepository.Setup(x => x.Create(It.IsAny<User>()))
+            .ReturnsAsync(createdUser);
+
+        _mockAdminService.Setup(x => x.AddUserToPermission(createdUser.Email, Permissions.User))
+            .ReturnsAsync(Result.Failure(new Error(ErrorCodes.Admin.AddUserToPermission, ErrorMessages.User.UserNotExists)));
+        
+        //Act
+        var result = await _userService.Register(_registerRequest);
+        
+        //Assert
+        Assert.That(
+            result.IsFailure
+            && result.Error is 
+            { Code: ErrorCodes.Admin.AddUserToPermission, 
+                Message: ErrorMessages.User.UserNotExists }, Is.True);
     }
 
     [Test]
@@ -216,17 +293,11 @@ public class UserServiceTests
     public async Task Login_ReturnsFailed_PasswordMismatch()
     {
         //Assign
-        var loginRequest = new LoginRequest()
-        {
-            Email = "test@test.com",
-            Password = "password"
-        };
-
-        _mockUserValidationService.Setup(x => x.ValidateLoginModel(loginRequest))
+        _mockUserValidationService.Setup(x => x.ValidateLoginModel(_loginRequest))
             .ReturnsAsync(Result.Failure(new Error(ErrorCodes.UserValidation.ValidateLoginModel,
                 ErrorMessages.UserValidation.IncorrectCredentials)));
 
-        _mockUserRepository.Setup(x => x.IsEmailExist(loginRequest.Email))
+        _mockUserRepository.Setup(x => x.IsEmailExist(_loginRequest.Email))
             .ReturnsAsync(true);
         
         var hashedPassword = "hashedPassword";
@@ -238,14 +309,14 @@ public class UserServiceTests
             Salt = salt
         };
 
-        _mockUserRepository.Setup(x => x.GetByEmail(loginRequest.Email))
+        _mockUserRepository.Setup(x => x.GetByEmail(_loginRequest.Email))
             .ReturnsAsync(user);
 
-        _mockPasswordHashingService.Setup(x => x.VerifyPassword(loginRequest.Password, user.Password, user.Salt))
+        _mockPasswordHashingService.Setup(x => x.VerifyPassword(_loginRequest.Password, user.Password, user.Salt))
             .Returns(false);
         
         //Act
-        var result = await _userService.Login(loginRequest);
+        var result = await _userService.Login(_loginRequest);
 
         //Assert
         Assert.That(
@@ -261,17 +332,11 @@ public class UserServiceTests
     public async Task Login_ReturnsFailed_UserIsNotActive()
     {
         //Assign
-        var loginRequest = new LoginRequest()
-        {
-            Email = "test@test.com",
-            Password = "password"
-        };
-
-        _mockUserValidationService.Setup(x => x.ValidateLoginModel(loginRequest))
+        _mockUserValidationService.Setup(x => x.ValidateLoginModel(_loginRequest))
             .ReturnsAsync(Result.Failure(new Error(ErrorCodes.UserValidation.ValidateLoginModel,
                 ErrorMessages.User.UserNotActive)));
 
-        _mockUserRepository.Setup(x => x.IsEmailExist(loginRequest.Email))
+        _mockUserRepository.Setup(x => x.IsEmailExist(_loginRequest.Email))
             .ReturnsAsync(true);
         
         var hashedPassword = "hashedPassword";
@@ -284,14 +349,14 @@ public class UserServiceTests
             IsActive = false
         };
 
-        _mockUserRepository.Setup(x => x.GetByEmail(loginRequest.Email))
+        _mockUserRepository.Setup(x => x.GetByEmail(_loginRequest.Email))
             .ReturnsAsync(user);
 
-        _mockPasswordHashingService.Setup(x => x.VerifyPassword(loginRequest.Password, user.Password, user.Salt))
+        _mockPasswordHashingService.Setup(x => x.VerifyPassword(_loginRequest.Password, user.Password, user.Salt))
             .Returns(true);
         
         //Act
-        var result = await _userService.Login(loginRequest);
+        var result = await _userService.Login(_loginRequest);
 
         //Assert
         Assert.That(
@@ -307,13 +372,7 @@ public class UserServiceTests
     public async Task Login_ReturnsSuccess_UserWasCreatedAndTokenWasGenerated()
     {
         //Assign
-        var loginRequest = new LoginRequest()
-        {
-            Email = "test@test.com",
-            Password = "password"
-        };
-
-        _mockUserValidationService.Setup(x => x.ValidateLoginModel(loginRequest))
+        _mockUserValidationService.Setup(x => x.ValidateLoginModel(_loginRequest))
             .ReturnsAsync(Result.Success());
         
         var hashedPassword = "hashedPassword";
@@ -321,12 +380,12 @@ public class UserServiceTests
 
         var user = new User()
         {
-            Email = loginRequest.Email,
+            Email = _loginRequest.Email,
             Password = hashedPassword,
             Salt = salt
         };
 
-        _mockUserRepository.Setup(x => x.GetByEmail(loginRequest.Email))
+        _mockUserRepository.Setup(x => x.GetByEmail(_loginRequest.Email))
             .ReturnsAsync(user);
 
         var token = "token";
@@ -335,7 +394,7 @@ public class UserServiceTests
             .ReturnsAsync(token);
         
         //Act
-        var result = await _userService.Login(loginRequest);
+        var result = await _userService.Login(_loginRequest);
 
         //Assert
         Assert.That(
