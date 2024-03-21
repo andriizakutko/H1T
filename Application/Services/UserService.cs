@@ -46,7 +46,7 @@ public class UserService(
 
             if (createdUser is null) return Result.Failure(new Error(ErrorCodes.User.Register, ErrorMessages.User.UserNotCreated));
             
-            await AddUserToDefaultPermission(createdUser);
+            await adminService.AddUserToPermission(createdUser.Email, Permissions.User);
             
             return Result.Success();
         }
@@ -110,10 +110,5 @@ public class UserService(
             logger.LogError(ex.Message);
             return Result<UserInfoResponse>.Failure(new Error(ErrorCodes.User.GetUser, ErrorMessages.ServiceError));
         }
-    }
-
-    private async Task AddUserToDefaultPermission(User user)
-    {
-        await adminService.AddUserToPermission(user, Permissions.User);
     }
 }

@@ -47,10 +47,12 @@ public class AdminService(
         }
     }
 
-    public async Task<Result> AddUserToPermission(User user, string permissionName)
+    public async Task<Result> AddUserToPermission(string email, string permissionName)
     {
         try
         {
+            var user = await userRepository.GetByEmail(email);
+            
             if (user is null)
             {
                 return Result.Failure(new Error(ErrorCodes.Admin.AddUserToPermission, ErrorMessages.User.UserNotExists));
@@ -72,11 +74,6 @@ public class AdminService(
             logger.LogError(ex.Message);
             return Result.Failure(new Error(ErrorCodes.Admin.AddUserToPermission, ErrorMessages.ServiceError));
         }
-    }
-
-    public async Task<User> GetUser(string email)
-    {
-        return await userRepository.GetByEmail(email);
     }
 
     public async Task<Result<IEnumerable<UsersPermissionsResult>>> GetUsersPermissions()

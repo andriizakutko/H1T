@@ -20,7 +20,7 @@ public class AdminController(IAdminService adminService) : BaseApiController
     public async Task<IActionResult> AddUserToPermission(AddUserToPermissionRequest addUserToPermissionRequest)
     {
         return HandleResult(
-            await adminService.AddUserToPermission(await adminService.GetUser(addUserToPermissionRequest.Email), addUserToPermissionRequest.PermissionName));
+            await adminService.AddUserToPermission(addUserToPermissionRequest.Email, addUserToPermissionRequest.PermissionName));
     }
     
     [HttpGet("get-users-permissions")]
