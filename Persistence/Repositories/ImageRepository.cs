@@ -6,15 +6,15 @@ namespace Persistence.Repositories;
 
 public class ImageRepository(ApplicationDbContext context) : IImageRepository
 {
-    public async Task AddImage(Image img)
+    public async Task<bool> AddImage(Image img)
     {
         await context.Images.AddAsync(img);
-        await context.SaveChangesAsync();
+        return await context.SaveChangesAsync() > 0;
     }
 
-    public async Task AddImages(ICollection<Image> images)
+    public async Task<bool> AddImages(ICollection<Image> images)
     {
         await context.Images.AddRangeAsync(images);
-        await context.SaveChangesAsync();
+        return await context.SaveChangesAsync() > 0;
     }
 }

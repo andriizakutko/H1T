@@ -4,6 +4,6 @@ namespace Persistence.Interfaces;
 
 public interface IImageRepository
 {
-    Task AddImage(Image img);
-    Task AddImages(ICollection<Image> images);
+    Task<bool> AddImage(Image img);
+    Task<bool> AddImages(ICollection<Image> images);
 }

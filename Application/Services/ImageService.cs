@@ -14,8 +14,11 @@ public class ImageService(
     {
         try
         {
-            await imageRepository.AddImage(img);
-            return Result.Success();
+            var isAdded = await imageRepository.AddImage(img);
+            return isAdded
+                ? Result.Success()
+                : Result.Failure(new Error(ErrorCodes.Image.AddImage, 
+                    ErrorMessages.Image.ImageWasNotAdded));
         }
         catch (Exception ex)
         {
@@ -28,8 +31,11 @@ public class ImageService(
     {
         try
         {
-            await imageRepository.AddImages(images);
-            return Result.Success();
+            var isAdded = await imageRepository.AddImages(images);
+            return isAdded
+                ? Result.Success()
+                : Result.Failure(new Error(ErrorCodes.Image.AddImages,
+                    ErrorMessages.Image.ImagesWereNotAdded));
         }
         catch (Exception ex)
         {

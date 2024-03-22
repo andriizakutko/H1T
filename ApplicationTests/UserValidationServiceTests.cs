@@ -30,7 +30,12 @@ public class UserValidationServiceTests
             _mockPasswordHashingService.Object,
             _mockLogger.Object
         );
+        
+        InitEntities();
+    }
 
+    private void InitEntities()
+    {
         _registerRequest = new RegisterRequest()
         {
             FirstName = "John",

@@ -24,6 +24,11 @@ public static class ErrorMessages
     {
         public const string IncorrectCredentials = "Incorrect credentials";
     }
+    public static class Image
+    {
+        public const string ImageWasNotAdded = "Image was not added";
+        public const string ImagesWereNotAdded = "Images were not added";
+    }
 
     public const string ServiceError = "Service error!";
 }

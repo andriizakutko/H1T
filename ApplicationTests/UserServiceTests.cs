@@ -20,7 +20,6 @@ public class UserServiceTests
     private Mock<IJwtService> _mockJwtService;
     private Mock<IAdminService> _mockAdminService;
     private Mock<ILogger> _mockLogger;
-
     private LoginRequest _loginRequest;
     private RegisterRequest _registerRequest;
     
@@ -42,6 +41,11 @@ public class UserServiceTests
             _mockAdminService.Object,
             _mockLogger.Object);
 
+        InitEntities();
+    }
+
+    private void InitEntities()
+    {
         _loginRequest = new LoginRequest()
         {
             Email = "test@test.com",
