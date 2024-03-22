@@ -1,6 +1,8 @@
-﻿namespace Application.Interfaces;
+﻿using Common.Results;
+
+namespace Application.Interfaces;
 
 public interface IPermissionService
 {
-    Task<HashSet<string>> GetPermissionsAsync(Guid userId);
+    Task<Result<HashSet<string>>> GetPermissions(Guid userId);
 }

@@ -49,4 +49,8 @@ public static class ErrorCodes
         public const string ValidateRegisterModel = "UserValidationService.ValidateRegisterModel";
         public const string ValidateLoginModel = "UserValidationService.ValidateLoginModel";
     }
+    public static class Permission
+    {
+        public const string GetPermissions = "PermissionService.GetPermissions";
+    }
 }

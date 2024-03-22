@@ -25,9 +25,9 @@ public class JwtService(IOptions<JwtOptions> jwtOptions, IPermissionService perm
             new(JwtClaimNames.LastName, user.LastName)
         };
 
-        var permissions = await permissionService.GetPermissionsAsync(user.Id);
+        var permissions = await permissionService.GetPermissions(user.Id);
 
-        foreach (var permission in permissions)
+        foreach (var permission in permissions.Value)
         {
             claims.Add(new Claim(JwtClaimNames.Permissions, permission));
         }
