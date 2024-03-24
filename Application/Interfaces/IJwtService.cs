@@ -1,8 +1,9 @@
-﻿using Domain;
+﻿using Common.Results;
+using Domain;
 
 namespace Application.Interfaces;
 
 public interface IJwtService
 {
-    Task<string> Generate(User user);
+    Task<Result<string>> Generate(User user);
 }

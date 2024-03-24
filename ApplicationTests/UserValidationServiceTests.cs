@@ -57,7 +57,7 @@ public class UserValidationServiceTests
     [Test]
     public async Task ValidateRegisterModel_ReturnsSuccess_RegisterRequestIsValid()
     {
-        //Assign
+        //Arrange
         _mockUserRepository.Setup(x => x.IsEmailExist(_registerRequest.Email))
             .ReturnsAsync(false);
 
@@ -71,7 +71,7 @@ public class UserValidationServiceTests
     [Test]
     public async Task ValidateRegisterModel_ReturnFailed_EmailAlreadyExists()
     {
-        //Assign
+        //Arrange
         _mockUserRepository.Setup(x => x.IsEmailExist(_registerRequest.Email))
             .ReturnsAsync(true);
         
@@ -92,7 +92,7 @@ public class UserValidationServiceTests
     [Test]
     public async Task ValidateLoginModel_ReturnsSuccess_LoginRequestIsValid()
     {
-        //Assign
+        //Arrange
         _mockUserRepository.Setup(x => x.IsEmailExist(_loginRequest.Email))
             .ReturnsAsync(true);
 
@@ -123,7 +123,7 @@ public class UserValidationServiceTests
     [Test]
     public async Task ValidateLoginModel_ReturnsFailed_IncorrectCredentials_EmailIsNotExists()
     {
-        //Assign
+        //Arrange
         _mockUserRepository.Setup(x => x.IsEmailExist(_loginRequest.Email))
             .ReturnsAsync(false);
 
@@ -143,7 +143,7 @@ public class UserValidationServiceTests
     [Test]
     public async Task ValidateLoginModel_ReturnsFailed_IncorrectCredentials_PasswordMismatch()
     {
-        //Assign
+        //Arrange
         _mockUserRepository.Setup(x => x.IsEmailExist(_loginRequest.Email))
             .ReturnsAsync(true);
         
@@ -180,7 +180,7 @@ public class UserValidationServiceTests
     [Test]
     public async Task ValidateLoginModel_ReturnsFailed_UserIsNotActive()
     {
-        //Assign
+        //Arrange
         _mockUserRepository.Setup(x => x.IsEmailExist(_loginRequest.Email))
             .ReturnsAsync(true);
         

@@ -72,9 +72,16 @@ public class UserService(
 
             var user = await repository.GetByEmail(loginRequest.Email);
 
+            var tokenResult = await jwtService.Generate(user);
+
+            if (tokenResult.IsFailure)
+            {
+                return Result<TokenResponse>.Failure(tokenResult.Error);
+            }
+
             return Result<TokenResponse>.Success(new TokenResponse()
             {
-                Token = await jwtService.Generate(user)
+                Token = tokenResult.Value
             });
         }
         catch (Exception ex)

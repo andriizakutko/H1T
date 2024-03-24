@@ -53,4 +53,8 @@ public static class ErrorCodes
     {
         public const string GetPermissions = "PermissionService.GetPermissions";
     }
+    public static class Jwt
+    {
+        public const string Generate = "JwtService.Generate";
+    }
 }

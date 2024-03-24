@@ -43,7 +43,7 @@ public class ImageServiceTests
     [Test]
     public async Task AddImage_ReturnsSuccess_ImageWasAddedSuccessfully()
     {
-        //Assign
+        //Arrange
         _mockImageRepository.Setup(x => x.AddImage(_image))
             .ReturnsAsync(true);
 
@@ -57,7 +57,7 @@ public class ImageServiceTests
     [Test]
     public async Task AddImages_ReturnsSuccess_ImagesWereAddedSuccessfully()
     {
-        //Assign
+        //Arrange
         _mockImageRepository.Setup(x => x.AddImages(_images))
             .ReturnsAsync(true);
 
@@ -71,7 +71,7 @@ public class ImageServiceTests
     [Test]
     public async Task AddImage_ReturnsFailed_ImageWasNotAdded()
     {
-        //Assign
+        //Arrange
         _mockImageRepository.Setup(x => x.AddImage(_image))
             .ReturnsAsync(false);
 
@@ -91,7 +91,7 @@ public class ImageServiceTests
     [Test]
     public async Task AddImages_ReturnsFailed_ImagesWereNotAdded()
     {
-        //Assign
+        //Arrange
         _mockImageRepository.Setup(x => x.AddImages(_images))
             .ReturnsAsync(false);
 
