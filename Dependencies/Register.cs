@@ -52,7 +52,7 @@ public static class Register
     {
         services.AddDbContext<ApplicationDbContext>(opt =>
         {
-            opt.UseNpgsql(configuration.GetConnectionString("Works4U")).UseLazyLoadingProxies();
+            opt.UseNpgsql(configuration.GetConnectionString("H1T")).UseLazyLoadingProxies();
         });
     }
 
