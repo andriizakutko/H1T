@@ -11,22 +11,36 @@ using Persistence.Interfaces;
 
 namespace Application.Services;
 
-public class AdminService(
+public class AdminService : IAdminService
+{
+    private readonly IUserRepository _userRepository;
+    private readonly IPermissionRepository _permissionRepository;
+    private readonly IOptions<AdminOptions> _options;
+    private readonly IHttpContextAccessor _contextAccessor;
+    private readonly ILogger<AdminService> _logger;
+
+    public AdminService(
         IUserRepository userRepository, 
         IPermissionRepository permissionRepository,
         IOptions<AdminOptions> options,
         IHttpContextAccessor contextAccessor,
-        ILogger logger)
-    : IAdminService
-{
+        ILogger<AdminService> logger)
+    {
+        _userRepository = userRepository;
+        _permissionRepository = permissionRepository;
+        _options = options;
+        _contextAccessor = contextAccessor;
+        _logger = logger;
+    }
+    
     public async Task<Result<IEnumerable<UserDetailsResponse>>> GetUsers()
     {
         try
         {
-            var users = await userRepository.GetAll();
+            var users = await _userRepository.GetAll();
         
             return Result<IEnumerable<UserDetailsResponse>>.Success(users
-                .Where(u => u.Email != options.Value.Email && u.Email != contextAccessor.GetEmail())
+                .Where(u => u.Email != _options.Value.Email && u.Email != _contextAccessor.GetEmail())
                 .Select(u => new UserDetailsResponse()
                 {
                     Id = u.Id,
@@ -41,7 +55,7 @@ public class AdminService(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex.Message);
+            _logger.LogError(ex.Message);
             return Result<IEnumerable<UserDetailsResponse>>.Failure(new Error(ErrorCodes.Admin.GetUsers,
                 ErrorMessages.ServiceError));
         }
@@ -51,7 +65,7 @@ public class AdminService(
     {
         try
         {
-            var user = await userRepository.GetByEmail(email);
+            var user = await _userRepository.GetByEmail(email);
             
             if (user is null)
             {
@@ -65,13 +79,13 @@ public class AdminService(
                 return Result.Failure(new Error(ErrorCodes.Admin.AddUserToPermission, ErrorMessages.Admin.PermissionHasAlreadyAdded));
             }
 
-            await permissionRepository.AddUserPermission(user, permissionName);
+            await _permissionRepository.AddUserPermission(user, permissionName);
 
             return Result.Success();
         }
         catch (Exception ex)
         {
-            logger.LogError(ex.Message);
+            _logger.LogError(ex.Message);
             return Result.Failure(new Error(ErrorCodes.Admin.AddUserToPermission, ErrorMessages.ServiceError));
         }
     }
@@ -80,7 +94,7 @@ public class AdminService(
     {
         try
         {
-            var userPermissions = await permissionRepository.GetAll();
+            var userPermissions = await _permissionRepository.GetAll();
 
             var permissionsDictionary = userPermissions.GroupBy(x => x.Email).ToDictionary(x => x.Key, y => y.ToArray());
 
@@ -106,7 +120,7 @@ public class AdminService(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex.Message);
+            _logger.LogError(ex.Message);
             return Result<IEnumerable<UsersPermissionsResult>>.Failure(new Error(ErrorCodes.Admin.GetUsersPermissions,
                 ErrorMessages.ServiceError));
         }
@@ -116,35 +130,35 @@ public class AdminService(
     {
         try
         {
-            var user = await userRepository.GetByEmail(email);
+            var user = await _userRepository.GetByEmail(email);
 
             if (user is null)
             {
                 return Result.Failure(new Error(ErrorCodes.Admin.DeleteUserFromPermission, ErrorMessages.User.UserNotFound));
             }
 
-            var userPermissions = await userRepository.GetUserPermissions(email);
+            var userPermissions = await _userRepository.GetUserPermissions(email);
 
             if (userPermissions.All(p => p.Permission.Name != permissionName))
             {
                 return Result.Failure(new Error(ErrorCodes.Admin.DeleteUserFromPermission, ErrorMessages.Admin.UserNotHavePermissionToDelete));
             }
 
-            var isDeleted = await permissionRepository.DeleteUserFromPermission(user, permissionName);
+            var isDeleted = await _permissionRepository.DeleteUserFromPermission(user, permissionName);
 
             return isDeleted ? Result.Success() : Result.Failure(new Error(ErrorCodes.Admin.DeleteUserFromPermission, 
                     ErrorMessages.Admin.DeleteUserFromPermissionFailed));
         }
         catch (Exception ex)
         {
-            logger.LogError(ex.Message);
+            _logger.LogError(ex.Message);
             return Result.Failure(new Error(ErrorCodes.Admin.DeleteUserFromPermission, ErrorMessages.ServiceError));
         }
     }
 
     private async Task<Result<bool>> CheckPermission(User user, string permissionName)
     {
-        var isAdded = await permissionRepository.IsPermissionAdded(user, permissionName);
+        var isAdded = await _permissionRepository.IsPermissionAdded(user, permissionName);
 
         return Result<bool>.Success(isAdded);
     }

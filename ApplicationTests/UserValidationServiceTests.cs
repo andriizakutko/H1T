@@ -14,7 +14,7 @@ public class UserValidationServiceTests
     private UserValidationService _userValidationService;
     private Mock<IUserRepository> _mockUserRepository;
     private Mock<IPasswordHashingService> _mockPasswordHashingService;
-    private Mock<ILogger> _mockLogger;
+    private Mock<ILogger<UserValidationService>> _mockLogger;
     private RegisterRequest _registerRequest;
     private LoginRequest _loginRequest;
     
@@ -23,7 +23,7 @@ public class UserValidationServiceTests
     {
         _mockUserRepository = new Mock<IUserRepository>();
         _mockPasswordHashingService = new Mock<IPasswordHashingService>();
-        _mockLogger = new Mock<ILogger>();
+        _mockLogger = new Mock<ILogger<UserValidationService>>();
 
         _userValidationService = new UserValidationService(
             _mockUserRepository.Object,

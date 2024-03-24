@@ -10,19 +10,36 @@ using Persistence.Interfaces;
 
 namespace Application.Services;
 
-public class TransportAdvertisementService(
-    ITransportAdvertisementRepository transportAdvertisementRepository,
-    IResourceRepository resourceRepository,
-    IImageService imageService,
-    IModeratorService moderatorService,
-    IUserRepository userRepository,
-    ILogger logger) : ITransportAdvertisementService
+public class TransportAdvertisementService : ITransportAdvertisementService
 {
+    private readonly ITransportAdvertisementRepository _transportAdvertisementRepository;
+    private readonly IResourceRepository _resourceRepository;
+    private readonly IImageService _imageService;
+    private readonly IModeratorService _moderatorService;
+    private readonly IUserRepository _userRepository;
+    private readonly ILogger<TransportAdvertisementService> _logger;
+
+    public TransportAdvertisementService(
+        ITransportAdvertisementRepository transportAdvertisementRepository,
+        IResourceRepository resourceRepository,
+        IImageService imageService,
+        IModeratorService moderatorService,
+        IUserRepository userRepository,
+        ILogger<TransportAdvertisementService> logger)
+    {
+        _transportAdvertisementRepository = transportAdvertisementRepository;
+        _resourceRepository = resourceRepository;
+        _imageService = imageService;
+        _moderatorService = moderatorService;
+        _userRepository = userRepository;
+        _logger = logger;
+    }
+    
     public async Task<Result<IEnumerable<TransportAdvertisementResult>>> GetTransportAdvertisements()
     {
         try
         {
-            var list = await transportAdvertisementRepository.GetTransportAdvertisements();
+            var list = await _transportAdvertisementRepository.GetTransportAdvertisements();
             var advertisements = list.Select(x => new TransportAdvertisementResult()
             {
                 Id = x.Id,
@@ -58,7 +75,7 @@ public class TransportAdvertisementService(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex.Message);
+            _logger.LogError(ex.Message);
             return Result<IEnumerable<TransportAdvertisementResult>>.Failure(
                 new Error(ErrorCodes.TransportAdvertisement.GetTransportAdvertisements, ErrorMessages.ServiceError));
         }
@@ -70,12 +87,12 @@ public class TransportAdvertisementService(
         {
             var images = request.ImageUrls.Select(url => new Image { Url = url }).ToList();
 
-            var addImagesResult = await imageService.AddImages(images);
+            var addImagesResult = await _imageService.AddImages(images);
             
             if(addImagesResult.IsFailure) return Result.Failure(addImagesResult.Error);
 
             var moderatorOverviewStatusResult =
-                await moderatorService.GetModeratorOverviewStatusByName(ModeratorOverviewStatuses.Waiting.ToString());
+                await _moderatorService.GetModeratorOverviewStatusByName(ModeratorOverviewStatuses.Waiting.ToString());
 
             if (moderatorOverviewStatusResult.IsFailure) return Result.Failure(moderatorOverviewStatusResult.Error);
 
@@ -101,12 +118,12 @@ public class TransportAdvertisementService(
                 IsVerified = false
             };
 
-            var transportType = await resourceRepository.GetTransportTypeById(request.TypeId);
-            var transportMake = await resourceRepository.GetTransportMakeById(request.MakeId);
-            var transportModel = await resourceRepository.GetTransportModelById(request.ModelId);
-            var transportBodyType = await resourceRepository.GetTransportBodyTypeById(request.BodyTypeId);
+            var transportType = await _resourceRepository.GetTransportTypeById(request.TypeId);
+            var transportMake = await _resourceRepository.GetTransportMakeById(request.MakeId);
+            var transportModel = await _resourceRepository.GetTransportModelById(request.ModelId);
+            var transportBodyType = await _resourceRepository.GetTransportBodyTypeById(request.BodyTypeId);
             
-            var creator = await userRepository.GetByEmail(request.CreatorEmail);
+            var creator = await _userRepository.GetByEmail(request.CreatorEmail);
 
             if (creator is null)
                 return Result.Failure(new Error(ErrorCodes.TransportAdvertisement.CreateTransportAdvertisement,
@@ -118,19 +135,19 @@ public class TransportAdvertisementService(
             transportAdvertisementModelToCreate.BodyType = transportBodyType;
             transportAdvertisementModelToCreate.Creator = creator;
             
-            var createdAdModel = await transportAdvertisementRepository.CreateTransportAdvertisement(transportAdvertisementModelToCreate);
+            var createdAdModel = await _transportAdvertisementRepository.CreateTransportAdvertisement(transportAdvertisementModelToCreate);
 
             var transportAdvertisementImages = images
                 .Select(x => new TransportAdvertisementImage
                     { TransportAdvertisement = createdAdModel, Image = x }).ToList();
 
-            await transportAdvertisementRepository.AddTransportAdvertisementImages(transportAdvertisementImages);
+            await _transportAdvertisementRepository.AddTransportAdvertisementImages(transportAdvertisementImages);
 
             return Result.Success();
         }
         catch (Exception ex)
         {
-            logger.LogError(ex.Message);
+            _logger.LogError(ex.Message);
             return Result.Failure(new Error(ErrorCodes.TransportAdvertisement.CreateTransportAdvertisement, ErrorMessages.ServiceError));
         }
     }
@@ -140,11 +157,11 @@ public class TransportAdvertisementService(
         try
         {
             return Result<TransportAdvertisement>.Success(
-                await transportAdvertisementRepository.GetTransportAdvertisementById(id));
+                await _transportAdvertisementRepository.GetTransportAdvertisementById(id));
         }
         catch (Exception ex)
         {
-            logger.LogError(ex.Message);
+            _logger.LogError(ex.Message);
             return Result<TransportAdvertisement>
                 .Failure(new Error(ErrorCodes.TransportAdvertisement.GetTransportAdvertisementById, ErrorMessages.ServiceError));
         }

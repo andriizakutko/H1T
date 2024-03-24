@@ -19,7 +19,7 @@ public class UserServiceTests
     private Mock<IUserRepository> _mockUserRepository;
     private Mock<IJwtService> _mockJwtService;
     private Mock<IAdminService> _mockAdminService;
-    private Mock<ILogger> _mockLogger;
+    private Mock<ILogger<UserService>> _mockLogger;
     private LoginRequest _loginRequest;
     private RegisterRequest _registerRequest;
     private string _hashedPassword;
@@ -34,7 +34,7 @@ public class UserServiceTests
         _mockUserRepository = new Mock<IUserRepository>();
         _mockJwtService = new Mock<IJwtService>();
         _mockAdminService = new Mock<IAdminService>();
-        _mockLogger = new Mock<ILogger>();
+        _mockLogger = new Mock<ILogger<UserService>>();
 
         _userService = new UserService(
             _mockUserRepository.Object,

@@ -6,15 +6,24 @@ using Persistence.Interfaces;
 
 namespace Application.Services;
 
-public class ImageService(
-    IImageRepository imageRepository,
-    ILogger logger) : IImageService
+public class ImageService : IImageService
 {
+    private readonly IImageRepository _imageRepository;
+    private readonly ILogger<ImageService> _logger;
+
+    public ImageService(
+        IImageRepository imageRepository,
+        ILogger<ImageService> logger)
+    {
+        _imageRepository = imageRepository;
+        _logger = logger;
+    }
+    
     public async Task<Result> AddImage(Image img)
     {
         try
         {
-            var isAdded = await imageRepository.AddImage(img);
+            var isAdded = await _imageRepository.AddImage(img);
             return isAdded
                 ? Result.Success()
                 : Result.Failure(new Error(ErrorCodes.Image.AddImage, 
@@ -22,7 +31,7 @@ public class ImageService(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex.Message);
+            _logger.LogError(ex.Message);
             return Result.Failure(new Error(ErrorCodes.Image.AddImage, ErrorMessages.ServiceError));
         }
     }
@@ -31,7 +40,7 @@ public class ImageService(
     {
         try
         {
-            var isAdded = await imageRepository.AddImages(images);
+            var isAdded = await _imageRepository.AddImages(images);
             return isAdded
                 ? Result.Success()
                 : Result.Failure(new Error(ErrorCodes.Image.AddImages,
@@ -39,7 +48,7 @@ public class ImageService(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex.Message);
+            _logger.LogError(ex.Message);
             return Result.Failure(new Error(ErrorCodes.Image.AddImages, ErrorMessages.ServiceError));
         }
     }

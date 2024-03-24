@@ -8,19 +8,28 @@ using Persistence.Interfaces;
 
 namespace Application.Services;
 
-public class ModeratorService(
-    IModeratorRepository moderatorRepository,
-    ILogger logger) : IModeratorService
+public class ModeratorService : IModeratorService
 {
+    private readonly IModeratorRepository _moderatorRepository;
+    private readonly ILogger<ModeratorService> _logger;
+
+    public ModeratorService(
+        IModeratorRepository moderatorRepository,
+        ILogger<ModeratorService> logger)
+    {
+        _moderatorRepository = moderatorRepository;
+        _logger = logger;
+    }
+    
     public async Task<Result<ModeratorOverviewStatus>> GetModeratorOverviewStatusByName(string status)
     {
         try
         {
-            return await moderatorRepository.GetModeratorOverviewStatusByName(status);
+            return await _moderatorRepository.GetModeratorOverviewStatusByName(status);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex.Message);
+            _logger.LogError(ex.Message);
             return Result<ModeratorOverviewStatus>.Failure(new Error(ErrorCodes.Moderator.GetModeratorOverviewStatusByName,
                 ErrorMessages.ServiceError));
         }
@@ -30,12 +39,12 @@ public class ModeratorService(
     {
         try
         {
-            await moderatorRepository.UpdateModeratorOverviewStatus(request.AdvertisementId, request.StatusId);
+            await _moderatorRepository.UpdateModeratorOverviewStatus(request.AdvertisementId, request.StatusId);
             return Result.Success();
         }
         catch (Exception ex)
         {
-            logger.LogError(ex.Message);
+            _logger.LogError(ex.Message);
             return Result.Failure(new Error(ErrorCodes.Moderator.UpdateModeratorOverviewStatus,
                 ErrorMessages.ServiceError));
         }
@@ -45,7 +54,7 @@ public class ModeratorService(
     {
         try
         {
-            var list = await moderatorRepository.GetTransportAdvertisementsByStatusId(statusId);
+            var list = await _moderatorRepository.GetTransportAdvertisementsByStatusId(statusId);
             
             var resultList = list.Select(x => new TransportAdvertisementResult()
             {
@@ -79,7 +88,7 @@ public class ModeratorService(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex.Message);
+            _logger.LogError(ex.Message);
             return Result<IEnumerable<TransportAdvertisementResult>>.Failure(new Error(ErrorCodes.Moderator.GetTransportAdvertisementByStatusId,
                 ErrorMessages.ServiceError));
         }
@@ -89,14 +98,14 @@ public class ModeratorService(
     {
         try
         {
-            await moderatorRepository.UpdateTransportAdvertisementVerificationStatus(request.TransportAdvertisementId,
+            await _moderatorRepository.UpdateTransportAdvertisementVerificationStatus(request.TransportAdvertisementId,
                 request.IsVerified);
 
             return Result.Success();
         }
         catch (Exception ex)
         {
-            logger.LogError(ex.Message);
+            _logger.LogError(ex.Message);
             return Result<IEnumerable<TransportAdvertisementResult>>.Failure(new Error(ErrorCodes.Moderator.UpdateTransportAdvertisementVerificationStatus,
                 ErrorMessages.ServiceError));
         }

@@ -12,12 +12,22 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Application.Services;
 
-public class JwtService(
+public class JwtService : IJwtService
+{
+    private readonly IPermissionService _permissionService;
+    private readonly ILogger<JwtService> _logger;
+    private readonly JwtOptions _jwtOptions;
+
+    public JwtService(
         IOptions<JwtOptions> jwtOptions, 
         IPermissionService permissionService,
-        ILogger logger) : IJwtService
-{
-    private readonly JwtOptions _jwtOptions = jwtOptions.Value;
+        ILogger<JwtService> logger
+    )
+    {
+        _permissionService = permissionService;
+        _logger = logger;
+        _jwtOptions = jwtOptions.Value;
+    }
 
     public async Task<Result<string>> Generate(User user)
     {
@@ -31,7 +41,7 @@ public class JwtService(
                 new(JwtClaimNames.LastName, user.LastName)
             };
 
-            var permissionsResult = await permissionService.GetPermissions(user.Id);
+            var permissionsResult = await _permissionService.GetPermissions(user.Id);
 
             if (permissionsResult.IsFailure)
             {
@@ -61,7 +71,7 @@ public class JwtService(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex.Message);
+            _logger.LogError(ex.Message);
             return Result<string>.Failure(new Error(ErrorCodes.Jwt.Generate, ErrorMessages.ServiceError));
         }
     }

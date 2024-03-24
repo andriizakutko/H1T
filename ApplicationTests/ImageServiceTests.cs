@@ -10,7 +10,7 @@ namespace ApplicationTests;
 public class ImageServiceTests
 {
     private Mock<IImageRepository> _mockImageRepository;
-    private Mock<ILogger> _mockLogger;
+    private Mock<ILogger<ImageService>> _mockLogger;
     private ImageService _imageService;
     private Image _image;
     private List<Image> _images;
@@ -19,7 +19,7 @@ public class ImageServiceTests
     public void SetUp()
     {
         _mockImageRepository = new Mock<IImageRepository>();
-        _mockLogger = new Mock<ILogger>();
+        _mockLogger = new Mock<ILogger<ImageService>>();
 
         _imageService = new ImageService(_mockImageRepository.Object, _mockLogger.Object);
         
