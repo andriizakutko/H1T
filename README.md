@@ -7,6 +7,7 @@
 4. PostgreSQL
 5. Redis
 6. Docker
+7. Angular
 
 ## LOCAL MACHINE:
 
