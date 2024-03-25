@@ -14,7 +14,7 @@ public class ModeratorRepository(ApplicationDbContext context) : IModeratorRepos
         return await context.ModeratorOverviewStatuses.FirstAsync(x => x.Name == status);
     }
 
-    public async Task UpdateModeratorOverviewStatus(Guid advertisementId, Guid statusId)
+    public async Task<bool> UpdateModeratorOverviewStatus(Guid advertisementId, Guid statusId)
     {
         var advertisement = await context.TransportAdvertisements.FindAsync(advertisementId);
         var status = await context.ModeratorOverviewStatuses.FindAsync(statusId);
@@ -26,7 +26,7 @@ public class ModeratorRepository(ApplicationDbContext context) : IModeratorRepos
 
         advertisement!.ModeratorOverviewStatus = status;
 
-        await context.SaveChangesAsync();
+        return await context.SaveChangesAsync() > 0;
     }
 
     public async Task<IEnumerable<TransportAdvertisement>> GetTransportAdvertisementsByStatusId(Guid statusId)
@@ -34,13 +34,13 @@ public class ModeratorRepository(ApplicationDbContext context) : IModeratorRepos
         return await context.TransportAdvertisements.Where(x => x.ModeratorOverviewStatus.Id == statusId).ToListAsync();
     }
 
-    public async Task UpdateTransportAdvertisementVerificationStatus(Guid id, bool isVerified)
+    public async Task<bool> UpdateTransportAdvertisementVerificationStatus(Guid id, bool isVerified)
     {
         var transportAdvertisement = await context.TransportAdvertisements.FindAsync(id);
 
         transportAdvertisement!.IsVerified = isVerified;
         transportAdvertisement!.UpdatedAt = DateTime.UtcNow;
 
-        await context.SaveChangesAsync();
+        return await context.SaveChangesAsync() > 0;
     }
 }

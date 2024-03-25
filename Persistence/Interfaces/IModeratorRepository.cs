@@ -6,7 +6,7 @@ namespace Persistence.Interfaces;
 public interface IModeratorRepository
 {
     Task<ModeratorOverviewStatus> GetModeratorOverviewStatusByName(string status);
-    Task UpdateModeratorOverviewStatus(Guid advertisementId, Guid statusId);
+    Task<bool> UpdateModeratorOverviewStatus(Guid advertisementId, Guid statusId);
     Task<IEnumerable<TransportAdvertisement>> GetTransportAdvertisementsByStatusId(Guid statusId);
-    Task UpdateTransportAdvertisementVerificationStatus(Guid id, bool isVerified);
+    Task<bool> UpdateTransportAdvertisementVerificationStatus(Guid id, bool isVerified);
 }

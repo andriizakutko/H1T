@@ -39,8 +39,15 @@ public class ModeratorService : IModeratorService
     {
         try
         {
-            await _moderatorRepository.UpdateModeratorOverviewStatus(request.AdvertisementId, request.StatusId);
-            return Result.Success();
+            var isSuccess = await _moderatorRepository.UpdateModeratorOverviewStatus(request.AdvertisementId, request.StatusId);
+
+            if (isSuccess)
+            {
+                return Result.Success();
+            }
+
+            return Result.Failure(new Error(ErrorCodes.Moderator.UpdateModeratorOverviewStatus,
+                ErrorMessages.Moderator.UpdateModeratorOverviewStatusFailed));
         }
         catch (Exception ex)
         {
@@ -98,10 +105,16 @@ public class ModeratorService : IModeratorService
     {
         try
         {
-            await _moderatorRepository.UpdateTransportAdvertisementVerificationStatus(request.TransportAdvertisementId,
+            var isSuccess = await _moderatorRepository.UpdateTransportAdvertisementVerificationStatus(request.TransportAdvertisementId,
                 request.IsVerified);
 
-            return Result.Success();
+            if (isSuccess)
+            {
+                return Result.Success();
+            }
+
+            return Result.Failure(new Error(ErrorCodes.Moderator.UpdateTransportAdvertisementVerificationStatus,
+                ErrorMessages.Moderator.UpdateTransportAdvertisementVerificationStatusFailed));
         }
         catch (Exception ex)
         {

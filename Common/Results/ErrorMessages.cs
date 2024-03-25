@@ -29,6 +29,12 @@ public static class ErrorMessages
         public const string ImageWasNotAdded = "Image was not added";
         public const string ImagesWereNotAdded = "Images were not added";
     }
+    public static class Moderator
+    {
+        public const string UpdateModeratorOverviewStatusFailed = "Moderator overview status was not updated";
+        public const string UpdateTransportAdvertisementVerificationStatusFailed =
+            "Transport advertisement verification status was not updated";
+    }
 
     public const string ServiceError = "Service error!";
 }
