@@ -21,8 +21,7 @@ public class TransportAdvertisementServiceTests
     private Mock<IModeratorService> _mockModeratorService;
     private Mock<ILogger<TransportAdvertisementService>> _mockLogger;
     private TransportAdvertisementService _transportAdvertisementService;
-    private List<TransportAdvertisement> _advertisementsReturned;
-    private CreateTransportAdvertisementRequest _createTransportAdvertisementRequest;
+    private List<TransportAdvertisement> _expectedAdvertisements;
     
     [SetUp]
     public void SetUp()
@@ -47,68 +46,40 @@ public class TransportAdvertisementServiceTests
 
     private void InitEntities()
     {
-        _advertisementsReturned = new List<TransportAdvertisement>()
+        _expectedAdvertisements = new List<TransportAdvertisement>
         {
             new()
             {
-                Title = "Some title",
-                SubTitle = "Some subtitle",
-                Description = "Some description",
-                Address = "Some address",
-                Images = new List<TransportAdvertisementImage>(),
-                Creator = new User()
+                Id = new Guid(),
+                Title = "Car",
+                SubTitle = "Luxury",
+                Description = "Luxury car for sale",
+                Price = 50000,
+                ModeratorOverviewStatus = new ModeratorOverviewStatus() { Name = "Approved" },
+                Type = new TransportType { Name = "Car" },
+                Make = new TransportMake { Name = "BMW" },
+                Model = new TransportModel { Name = "X5" },
+                BodyType = new TransportBodyType { Name = "SUV" },
+                EngineCapacity = 3000,
+                SerialNumber = "123456",
+                FuelConsumption = 10,
+                Country = "USA",
+                City = "New York",
+                Address = "123 Main St",
+                Mileage = 20000,
+                ManufactureCountry = "Germany",
+                ManufactureDate = new DateTime(2022, 1, 1),
+                IsElectric = false,
+                IsNew = false,
+                IsUsed = true,
+                IsVerified = true,
+                Images = new List<TransportAdvertisementImage>
                 {
-                    FirstName = "First name",
-                    LastName = "Last name",
-                    Email = "email@test.com"
+                    new() { Image = new Image { Url = "image1.jpg" } }, 
+                    new() { Image = new Image { Url = "image2.jpg" } }
                 },
-                Type = new TransportType()
-                {
-                    Name = "Test"
-                },
-                Make = new TransportMake()
-                {
-                    Name = "Test"
-                },
-                Model = new TransportModel()
-                {
-                    Name = "Test"
-                },
-                BodyType = new TransportBodyType()
-                {
-                    Name = "Test"
-                },
-                ModeratorOverviewStatus = new ModeratorOverviewStatus()
-                {
-                    Name = "Test"
-                }
+                Creator = new User { Email = "test@example.com", FirstName = "John", LastName = "Doe" }
             }
-        };
-
-        _createTransportAdvertisementRequest = new CreateTransportAdvertisementRequest()
-        {
-            Title = "Test title",
-            SubTitle = "Test sub title",
-            Description = "Test description",
-            Price = 14000,
-            TypeId = Guid.Parse("a5e14667-3b6b-4bf4-a439-925d234593a1"),
-            MakeId = Guid.Parse("e28a8881-4aa2-43d6-b8b5-0b35a9805f7f"),
-            ModelId = Guid.Parse("cd5a6eab-81b2-4987-aa57-8f6820efec26"),
-            BodyTypeId = Guid.Parse("7f3fb65e-df20-4715-8a5e-9981a5a9804e"),
-            CreatorEmail = "email@test.com",
-            EngineCapacity = 2.4,
-            SerialNumber = "test000",
-            FuelConsumption = 10.4,
-            Country = "Some country",
-            Address = "Some address",
-            City = "Some city",
-            Mileage = 100000,
-            ManufactureCountry = "Some country",
-            ManufactureDate = DateTime.UtcNow,
-            IsElectric = false,
-            IsNew = false,
-            IsUsed = true,
-            ImageUrls = new[] { "url1", "url2" }
         };
     }
 
@@ -117,7 +88,7 @@ public class TransportAdvertisementServiceTests
     {
         //Arrange
         _mockTransportAdvertisementRepository.Setup(x => x.GetTransportAdvertisements())
-            .ReturnsAsync(_advertisementsReturned);
+            .ReturnsAsync(_expectedAdvertisements);
 
         //Act
         var result = await _transportAdvertisementService.GetTransportAdvertisements();
@@ -125,9 +96,13 @@ public class TransportAdvertisementServiceTests
         //Asserts
         Assert.Multiple(() =>
         {
-            Assert.That(result.IsSuccess);
-            Assert.That(result.Value, Is.Not.EqualTo(null));
+            Assert.That(result.IsSuccess, Is.True);
+            Assert.That(result.Value.Count(), Is.EqualTo(_expectedAdvertisements.Count));
         });
+        
+        var advertisementResult = result.Value.First();
+        Assert.That(advertisementResult.Id, Is.EqualTo(_expectedAdvertisements.First().Id));
+        _mockTransportAdvertisementRepository.Verify(repo => repo.GetTransportAdvertisements(), Times.Once);
     }
     
     [Test]
