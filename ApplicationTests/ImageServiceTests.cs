@@ -69,6 +69,25 @@ public class ImageServiceTests
     }
 
     [Test]
+    public async Task AddImages_ReturnsFailed_ServiceError()
+    {
+        // Arrange
+        _mockImageRepository.Setup(x => x.AddImages(It.IsAny<List<Image>>()))
+            .ThrowsAsync(new Exception("Some exception"));
+
+        //Act
+        var result = await _imageService.AddImages(_images);
+
+        //Assert
+        Assert.That(result.IsFailure
+            && result.Error is
+            {
+                Code: ErrorCodes.Image.AddImages,
+                Message: ErrorMessages.ServiceError
+            });
+    }
+
+    [Test]
     public async Task AddImage_ReturnsFailed_ImageWasNotAdded()
     {
         //Arrange
@@ -106,5 +125,24 @@ public class ImageServiceTests
                 Code: ErrorCodes.Image.AddImages,
                 Message: ErrorMessages.Image.ImagesWereNotAdded
             });
+    }
+    
+    [Test]
+    public async Task AddImage_ReturnsFailed_ServiceError()
+    {
+        // Arrange
+        _mockImageRepository.Setup(x => x.AddImage(It.IsAny<Image>()))
+            .ThrowsAsync(new Exception("Some exception"));
+
+        //Act
+        var result = await _imageService.AddImage(_image);
+
+        //Assert
+        Assert.That(result.IsFailure
+                    && result.Error is
+                    {
+                        Code: ErrorCodes.Image.AddImage,
+                        Message: ErrorMessages.ServiceError
+                    });
     }
 }

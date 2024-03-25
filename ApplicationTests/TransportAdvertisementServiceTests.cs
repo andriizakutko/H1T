@@ -21,7 +21,7 @@ public class TransportAdvertisementServiceTests
     private Mock<IModeratorService> _mockModeratorService;
     private Mock<ILogger<TransportAdvertisementService>> _mockLogger;
     private TransportAdvertisementService _transportAdvertisementService;
-    private List<TransportAdvertisement> _advertisementReturned;
+    private List<TransportAdvertisement> _advertisementsReturned;
     private CreateTransportAdvertisementRequest _createTransportAdvertisementRequest;
     
     [SetUp]
@@ -47,7 +47,7 @@ public class TransportAdvertisementServiceTests
 
     private void InitEntities()
     {
-        _advertisementReturned = new List<TransportAdvertisement>()
+        _advertisementsReturned = new List<TransportAdvertisement>()
         {
             new()
             {
@@ -117,12 +117,36 @@ public class TransportAdvertisementServiceTests
     {
         //Arrange
         _mockTransportAdvertisementRepository.Setup(x => x.GetTransportAdvertisements())
-            .ReturnsAsync(_advertisementReturned);
+            .ReturnsAsync(_advertisementsReturned);
 
         //Act
         var result = await _transportAdvertisementService.GetTransportAdvertisements();
 
         //Asserts
-        Assert.That(result.IsSuccess);
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.IsSuccess);
+            Assert.That(result.Value, Is.Not.EqualTo(null));
+        });
+    }
+    
+    [Test]
+    public async Task GetTransportAdvertisements_ReturnsFailed_ServiceError()
+    {
+        //Arrange
+        _mockTransportAdvertisementRepository.Setup(x => x.GetTransportAdvertisements())
+            .ThrowsAsync(new Exception("Some exception"));
+
+        //Act
+        var result = await _transportAdvertisementService.GetTransportAdvertisements();
+
+        //Asserts
+        Assert.That(
+            result.IsFailure
+            && result.Error is
+            {
+                Code: ErrorCodes.TransportAdvertisement.GetTransportAdvertisements,
+                Message: ErrorMessages.ServiceError
+            });
     }
 }

@@ -25,6 +25,7 @@ public class UserServiceTests
     private string _hashedPassword;
     private byte[]? _salt;
     private User _createdUser;
+    private string _email;
     
     [SetUp]
     public void Setup()
@@ -81,6 +82,8 @@ public class UserServiceTests
             City = _registerRequest.City,
             Address = _registerRequest.Address
         };
+        
+        _email = "someuseremail@test.com";
     }
 
     [Test]
@@ -104,6 +107,57 @@ public class UserServiceTests
             && result.Error is 
                 { Code: ErrorCodes.UserValidation.ValidateRegisterModel, 
                     Message: ErrorMessages.User.UserAlreadyExist }, Is.True);
+    }
+
+    [Test]
+    public async Task Register_ReturnsFailed_UserWasNotCreated()
+    {
+        //Arrange
+        _mockUserValidationService.Setup(x => x.ValidateRegisterModel(_registerRequest))
+            .ReturnsAsync(Result.Success());
+        
+        _mockPasswordHashingService.Setup(x => x.HashPassword(_registerRequest.Password, out _salt))
+            .Returns(_hashedPassword);
+
+        _mockUserRepository.Setup(x => x.Create(It.IsAny<User>())).ReturnsAsync((User)null!);
+        
+        //Act
+        var result = await _userService.Register(_registerRequest);
+        
+        //Assert
+        Assert.That(
+            result.IsFailure
+            && result.Error is 
+            { Code: ErrorCodes.User.Register, 
+                Message: ErrorMessages.User.UserNotCreated 
+            });
+    }
+    
+    [Test]
+    public async Task Register_ReturnsFailed_ServiceError()
+    {
+        //Arrange
+        _mockUserValidationService.Setup(x => x.ValidateRegisterModel(_registerRequest)).ReturnsAsync(Result.Success());
+        
+        _mockPasswordHashingService.Setup(x => x.HashPassword(_registerRequest.Password, out _salt))
+            .Returns(_hashedPassword);
+
+        _mockUserRepository.Setup(x => x.Create(It.IsAny<User>())).ReturnsAsync(_createdUser);
+
+        _mockAdminService.Setup(x => x.AddUserToPermission(_createdUser.Email, Permissions.User))
+            .ThrowsAsync(new Exception("Some exception"));
+        
+        //Act
+        var result = await _userService.Register(_registerRequest);
+        
+        //Assert
+        Assert.That(
+            result.IsFailure
+            && result.Error is
+            {
+                Code: ErrorCodes.User.Register,
+                Message: ErrorMessages.ServiceError
+            });
     }
     
     [Test]
@@ -334,6 +388,29 @@ public class UserServiceTests
             result.IsSuccess
             && result.Value.Token == token);
     }
+    
+    [Test]
+    public async Task Login_ReturnsFailed_ServiceError()
+    {
+        //Arrange
+        _mockUserValidationService.Setup(x => x.ValidateLoginModel(_loginRequest))
+            .ReturnsAsync(Result.Success());
+
+        _mockUserRepository.Setup(x => x.IsEmailExist(_loginRequest.Email))
+            .ThrowsAsync(new Exception("Some exception"));
+        
+        //Act
+        var result = await _userService.Login(_loginRequest);
+
+        //Assert
+        Assert.That(
+            result.IsFailure
+            && result.Error is
+            {
+                Code: ErrorCodes.User.Login,
+                Message: ErrorMessages.ServiceError
+            });
+    }
 
     [Test]
     public async Task Login_ReturnsFailed_JwtServiceFailed_PermissionServiceError()
@@ -399,6 +476,72 @@ public class UserServiceTests
             && result.Error is
             {
                 Code: ErrorCodes.Jwt.Generate,
+                Message: ErrorMessages.ServiceError
+            });
+    }
+
+    [Test]
+    public async Task GetUser_ReturnsSuccess_UserInfoWasReturned()
+    {
+        //Arrange
+        _mockUserRepository.Setup(x => x.GetByEmail(_email))
+            .ReturnsAsync(_createdUser);
+
+        var userPermissions = new List<UserPermission>()
+        {
+            new() { Permission = new Permission() { Name = "User"} } 
+        };
+
+        _mockUserRepository.Setup(x => x.GetUserPermissions(_email))
+            .ReturnsAsync(userPermissions);
+
+        //Act
+        var result = await _userService.GetUser(_email);
+        
+        //Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.IsSuccess);
+            Assert.That(result.Value, Is.Not.Null);
+        });
+    }
+    
+    [Test]
+    public async Task GetUser_ReturnsFailed_UserWasNotFound()
+    {
+        //Arrange
+        _mockUserRepository.Setup(x => x.GetByEmail(_email))
+            .ReturnsAsync((User)null!);
+
+        //Act
+        var result = await _userService.GetUser(_email);
+        
+        //Assert
+        Assert.That(
+            result.IsFailure
+            && result.Error is
+            {
+                Code: ErrorCodes.User.GetUser,
+                Message: ErrorMessages.User.UserNotFound
+            });
+    }
+    
+    [Test]
+    public async Task GetUser_ReturnsFailed_ServiceError()
+    {
+        //Arrange
+        _mockUserRepository.Setup(x => x.GetByEmail(_email))
+            .ThrowsAsync(new Exception("Some exception"));
+
+        //Act
+        var result = await _userService.GetUser(_email);
+        
+        //Assert
+        Assert.That(
+            result.IsFailure
+            && result.Error is
+            {
+                Code: ErrorCodes.User.GetUser,
                 Message: ErrorMessages.ServiceError
             });
     }

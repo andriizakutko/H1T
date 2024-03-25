@@ -1,4 +1,5 @@
 ﻿using Application.Services;
+using Common.Results;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Persistence.Interfaces;
@@ -43,5 +44,35 @@ public class PermissionServiceTests
 
         //Assert
         Assert.That(result.IsSuccess);
+    }
+    
+    [Test]
+    public async Task GetPermissions_ReturnsFailed_ServiceError()
+    {
+        //Arrange
+        var userId = Guid.Parse("b99c7d95-f2f8-45c1-aa82-9e5fbfb0ec47");
+
+        var permissionsReturned = new HashSet<string>()
+        {
+            "p1",
+            "p2",
+            "p3",
+            "p4"
+        };
+
+        _mockPermissionRepository.Setup(x => x.GetUserPermissions(userId))
+            .ThrowsAsync(new Exception("Some exception"));
+
+        //Act
+        var result = await _permissionService.GetPermissions(userId);
+
+        //Assert
+        Assert.That(
+            result.IsFailure
+            && result.Error is
+            {
+                Code: ErrorCodes.Permission.GetPermissions,
+                Message: ErrorMessages.ServiceError
+            });
     }
 }

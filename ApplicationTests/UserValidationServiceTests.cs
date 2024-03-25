@@ -90,6 +90,26 @@ public class UserValidationServiceTests
     }
 
     [Test]
+    public async Task ValidateRegisterModel_ReturnsFailed_ServiceError()
+    {
+        //Arrange
+        _mockUserRepository.Setup(x => x.IsEmailExist(_registerRequest.Email))
+            .ThrowsAsync(new Exception("Some exception"));
+        
+        //Act
+        var result = await _userValidationService.ValidateRegisterModel(_registerRequest);
+
+        //Assert
+        Assert.That(
+            result.IsFailure
+            && result.Error is
+            {
+                Code: ErrorCodes.UserValidation.ValidateRegisterModel,
+                Message: ErrorMessages.ServiceError
+            });
+    }
+
+    [Test]
     public async Task ValidateLoginModel_ReturnsSuccess_LoginRequestIsValid()
     {
         //Arrange
@@ -211,6 +231,26 @@ public class UserValidationServiceTests
             {
                 Code: ErrorCodes.UserValidation.ValidateLoginModel,
                 Message: ErrorMessages.User.UserNotActive
+            });
+    }
+    
+    [Test]
+    public async Task ValidateLoginModel_ReturnsFailed_ServiceError()
+    {
+        //Arrange
+        _mockUserRepository.Setup(x => x.IsEmailExist(_loginRequest.Email))
+            .ThrowsAsync(new Exception("Some exception"));
+        
+        //Act
+        var result = await _userValidationService.ValidateLoginModel(_loginRequest);
+
+        //Assert
+        Assert.That(
+            result.IsFailure
+            && result.Error is
+            {
+                Code: ErrorCodes.UserValidation.ValidateLoginModel,
+                Message: ErrorMessages.ServiceError
             });
     }
 }
