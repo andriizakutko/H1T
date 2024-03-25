@@ -1,4 +1,4 @@
-# Works4U
+# H1T
 
 ## LOCAL MACHINE:
 
@@ -9,6 +9,9 @@
 4. Run Redis on Doker
 5. Install PostgreSQL Server - https://www.postgresql.org/download/
 6. Install PgAdmin - https://www.pgadmin.org/
+7. Create PgAdmin User (username: h1t-user, password: !!h1t)
+8. Go to the Infrastructure folder and run the command : dotnet ef database update -s ..\API\API.csproj -p .\Infrastructure.csproj
+9. Run application
 
 ## DOCKER
 #### STEPS TO RUN:
