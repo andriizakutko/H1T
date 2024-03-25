@@ -13,13 +13,14 @@ public class PermissionRepository(ApplicationDbContext context) : IPermissionRep
         return await context.Permissions.FirstOrDefaultAsync(x => x.Name == permissionName);
     }
 
-    public async Task AddUserPermission(User user, string permissionName)
+    public async Task<bool> AddUserPermission(User user, string permissionName)
     {
         await context.UserPermissions.AddAsync(new UserPermission()
         {
             User = user, Permission = await GetByName(permissionName)
         });
-        await context.SaveChangesAsync();
+        
+        return await context.SaveChangesAsync() > 0;
     }
 
     public async Task<bool> IsPermissionAdded(User user, string permissionName)

@@ -79,9 +79,11 @@ public class AdminService : IAdminService
                 return Result.Failure(new Error(ErrorCodes.Admin.AddUserToPermission, ErrorMessages.Admin.PermissionHasAlreadyAdded));
             }
 
-            await _permissionRepository.AddUserPermission(user, permissionName);
+            var isSuccess = await _permissionRepository.AddUserPermission(user, permissionName);
 
-            return Result.Success();
+            return isSuccess 
+                ? Result.Success() 
+                : Result.Failure(new Error(ErrorCodes.Admin.AddUserToPermission, ErrorMessages.Admin.AddUserToPermissionFailed));
         }
         catch (Exception ex)
         {

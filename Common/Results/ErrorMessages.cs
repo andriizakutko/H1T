@@ -7,6 +7,7 @@ public static class ErrorMessages
         public const string PermissionHasAlreadyAdded = "Permission has already added";
         public const string UserNotHavePermissionToDelete = "User doesn't have this permission to delete";
         public const string DeleteUserFromPermissionFailed = "Delete user permission is failed";
+        public const string AddUserToPermissionFailed = "Failed add user to permission";
     }
     public static class TransportAdvertisement
     {
