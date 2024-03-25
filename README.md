@@ -1,5 +1,13 @@
 # H1T
 
+## Technologies:
+1. .NET 8
+2. ASP.NET Web API
+3. Entity Framework
+4. PostgreSQL
+5. Redis
+6. Docker
+
 ## LOCAL MACHINE:
 
 #### STEPS TO RUN:
