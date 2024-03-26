@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using Application.Services;
 using Common.Options;
+using Common.Requests;
 using Common.Results;
 using Domain;
 using Domain.StoreResults;
@@ -22,8 +23,8 @@ public class AdminServiceTests
     private Mock<IHttpContextAccessor> _mockContextAccessor;
     private Mock<ILogger<AdminService>> _mockLogger;
     private AdminService _adminService;
-    private string _email;
-    private string _permissionName;
+    private AddUserToPermissionRequest _addUserToPermissionRequest;
+    private DeleteUserFromPermissionRequest _deleteUserFromPermissionRequest;
     private User _expectedUser;
     
     [SetUp]
@@ -47,8 +48,17 @@ public class AdminServiceTests
 
     private void InitEntities()
     {
-        _email = "john@gmail.com";
-        _permissionName = Permissions.Moderator;
+        _addUserToPermissionRequest = new AddUserToPermissionRequest()
+        {
+            Email = "john@gmail.com",
+            PermissionName = Permissions.Moderator
+        };
+
+        _deleteUserFromPermissionRequest = new DeleteUserFromPermissionRequest()
+        {
+            Email = "john@gmail.com",
+            PermissionName = Permissions.Moderator
+        };
 
         _expectedUser = new User()
         {
@@ -164,17 +174,17 @@ public class AdminServiceTests
     public async Task AddUserToPermission_ReturnsSuccess()
     {
         //Arrange
-        _mockUserRepository.Setup(x => x.GetByEmail(_email))
+        _mockUserRepository.Setup(x => x.GetByEmail(_addUserToPermissionRequest.Email))
             .ReturnsAsync(_expectedUser);
 
-        _mockPermissionRepository.Setup(x => x.IsPermissionAdded(_expectedUser, _permissionName))
+        _mockPermissionRepository.Setup(x => x.IsPermissionAdded(_expectedUser, _addUserToPermissionRequest.PermissionName))
             .ReturnsAsync(false);
 
-        _mockPermissionRepository.Setup(x => x.AddUserPermission(_expectedUser, _permissionName))
+        _mockPermissionRepository.Setup(x => x.AddUserPermission(_expectedUser, _addUserToPermissionRequest.PermissionName))
             .ReturnsAsync(true);
 
         //Act
-        var result = await _adminService.AddUserToPermission(_email, _permissionName);
+        var result = await _adminService.AddUserToPermission(_addUserToPermissionRequest);
 
         //Assert
         Assert.That(result.IsSuccess);
@@ -184,11 +194,11 @@ public class AdminServiceTests
     public async Task AddUserToPermission_ReturnsFailed_UserNotExists()
     {
         //Arrange
-        _mockUserRepository.Setup(x => x.GetByEmail(_email))
+        _mockUserRepository.Setup(x => x.GetByEmail(_addUserToPermissionRequest.Email))
             .ReturnsAsync((User)null!);
         
         //Act
-        var result = await _adminService.AddUserToPermission(_email, _permissionName);
+        var result = await _adminService.AddUserToPermission(_addUserToPermissionRequest);
 
         //Assert
         Assert.That(
@@ -204,14 +214,14 @@ public class AdminServiceTests
     public async Task AddUserToPermission_ReturnsFailed_PermissionHasAlreadyAdded()
     {
         //Arrange
-        _mockUserRepository.Setup(x => x.GetByEmail(_email))
+        _mockUserRepository.Setup(x => x.GetByEmail(_addUserToPermissionRequest.Email))
             .ReturnsAsync(_expectedUser);
 
-        _mockPermissionRepository.Setup(x => x.IsPermissionAdded(_expectedUser, _permissionName))
+        _mockPermissionRepository.Setup(x => x.IsPermissionAdded(_expectedUser, _addUserToPermissionRequest.PermissionName))
             .ReturnsAsync(true);
 
         //Act
-        var result = await _adminService.AddUserToPermission(_email, _permissionName);
+        var result = await _adminService.AddUserToPermission(_addUserToPermissionRequest);
 
         //Assert
         Assert.That(
@@ -227,17 +237,17 @@ public class AdminServiceTests
     public async Task AddUserToPermission_ReturnsFailed_AddUserToPermissionFailed()
     {
         //Arrange
-        _mockUserRepository.Setup(x => x.GetByEmail(_email))
+        _mockUserRepository.Setup(x => x.GetByEmail(_addUserToPermissionRequest.Email))
             .ReturnsAsync(_expectedUser);
 
-        _mockPermissionRepository.Setup(x => x.IsPermissionAdded(_expectedUser, _permissionName))
+        _mockPermissionRepository.Setup(x => x.IsPermissionAdded(_expectedUser, _addUserToPermissionRequest.PermissionName))
             .ReturnsAsync(false);
 
-        _mockPermissionRepository.Setup(x => x.AddUserPermission(_expectedUser, _permissionName))
+        _mockPermissionRepository.Setup(x => x.AddUserPermission(_expectedUser, _addUserToPermissionRequest.PermissionName))
             .ReturnsAsync(false);
 
         //Act
-        var result = await _adminService.AddUserToPermission(_email, _permissionName);
+        var result = await _adminService.AddUserToPermission(_addUserToPermissionRequest);
 
         //Assert
         Assert.That(
@@ -253,11 +263,11 @@ public class AdminServiceTests
     public async Task AddUserToPermission_ReturnsFailed_ServiceError()
     {
         //Arrange
-        _mockUserRepository.Setup(x => x.GetByEmail(_email))
+        _mockUserRepository.Setup(x => x.GetByEmail(_addUserToPermissionRequest.Email))
             .ThrowsAsync(new Exception("Some exception"));
 
         //Act
-        var result = await _adminService.AddUserToPermission(_email, _permissionName);
+        var result = await _adminService.AddUserToPermission(_addUserToPermissionRequest);
 
         //Assert
         Assert.That(
@@ -275,8 +285,8 @@ public class AdminServiceTests
         //Arrange
         var expectedUserPermissions = new List<UserPermissionResult>()
         {
-            new() { Email = _email, PermissionName = _permissionName },
-            new() { Email = _email, PermissionName = Permissions.User }
+            new() { Email = _addUserToPermissionRequest.Email, PermissionName = _addUserToPermissionRequest.PermissionName },
+            new() { Email = _addUserToPermissionRequest.Email, PermissionName = Permissions.User }
         };
 
         _mockPermissionRepository.Setup(x => x.GetAll())
@@ -315,7 +325,7 @@ public class AdminServiceTests
     public async Task DeleteUserFromPermission_ReturnsSuccess()
     {
         //Arrange
-        _mockUserRepository.Setup(x => x.GetByEmail(_email))
+        _mockUserRepository.Setup(x => x.GetByEmail(_deleteUserFromPermissionRequest.Email))
             .ReturnsAsync(_expectedUser);
 
         var expectedUserPermissions = new List<UserPermission>()
@@ -324,14 +334,14 @@ public class AdminServiceTests
             new() { Permission = new Permission() { Name = Permissions.Moderator } }
         };
 
-        _mockUserRepository.Setup(x => x.GetUserPermissions(_email))
+        _mockUserRepository.Setup(x => x.GetUserPermissions(_deleteUserFromPermissionRequest.Email))
             .ReturnsAsync(expectedUserPermissions);
 
-        _mockPermissionRepository.Setup(x => x.DeleteUserFromPermission(_expectedUser, _permissionName))
+        _mockPermissionRepository.Setup(x => x.DeleteUserFromPermission(_expectedUser, _deleteUserFromPermissionRequest.PermissionName))
             .ReturnsAsync(true);
 
         //Act
-        var result = await _adminService.DeleteUserFromPermission(_email, _permissionName);
+        var result = await _adminService.DeleteUserFromPermission(_deleteUserFromPermissionRequest);
 
         //Assert
         Assert.That(result.IsSuccess);
@@ -341,11 +351,11 @@ public class AdminServiceTests
     public async Task DeleteUserFromPermission_ReturnsFailed_UserNotFound()
     {
         //Arrange
-        _mockUserRepository.Setup(x => x.GetByEmail(_email))
+        _mockUserRepository.Setup(x => x.GetByEmail(_deleteUserFromPermissionRequest.Email))
             .ReturnsAsync((User)null!);
 
         //Act
-        var result = await _adminService.DeleteUserFromPermission(_email, _permissionName);
+        var result = await _adminService.DeleteUserFromPermission(_deleteUserFromPermissionRequest);
 
         //Assert
         Assert.That(
@@ -361,7 +371,7 @@ public class AdminServiceTests
     public async Task DeleteUserFromPermission_ReturnsFailed_UserNotHavePermissionToDelete()
     {
         //Arrange
-        _mockUserRepository.Setup(x => x.GetByEmail(_email))
+        _mockUserRepository.Setup(x => x.GetByEmail(_deleteUserFromPermissionRequest.Email))
             .ReturnsAsync(_expectedUser);
 
         var expectedUserPermissions = new List<UserPermission>()
@@ -369,11 +379,11 @@ public class AdminServiceTests
             new() { Permission = new Permission() { Name = Permissions.User } }
         };
 
-        _mockUserRepository.Setup(x => x.GetUserPermissions(_email))
+        _mockUserRepository.Setup(x => x.GetUserPermissions(_deleteUserFromPermissionRequest.Email))
             .ReturnsAsync(expectedUserPermissions);
 
         //Act
-        var result = await _adminService.DeleteUserFromPermission(_email, _permissionName);
+        var result = await _adminService.DeleteUserFromPermission(_deleteUserFromPermissionRequest);
 
         //Assert
         Assert.That(
@@ -389,7 +399,7 @@ public class AdminServiceTests
     public async Task DeleteUserFromPermission_ReturnsFailed_DeleteUserPermissionFailed()
     {
         //Arrange
-        _mockUserRepository.Setup(x => x.GetByEmail(_email))
+        _mockUserRepository.Setup(x => x.GetByEmail(_deleteUserFromPermissionRequest.Email))
             .ReturnsAsync(_expectedUser);
 
         var expectedUserPermissions = new List<UserPermission>()
@@ -398,14 +408,14 @@ public class AdminServiceTests
             new() { Permission = new Permission() { Name = Permissions.Moderator } }
         };
 
-        _mockUserRepository.Setup(x => x.GetUserPermissions(_email))
+        _mockUserRepository.Setup(x => x.GetUserPermissions(_deleteUserFromPermissionRequest.Email))
             .ReturnsAsync(expectedUserPermissions);
 
-        _mockPermissionRepository.Setup(x => x.DeleteUserFromPermission(_expectedUser, _permissionName))
+        _mockPermissionRepository.Setup(x => x.DeleteUserFromPermission(_expectedUser, _deleteUserFromPermissionRequest.PermissionName))
             .ReturnsAsync(false);
 
         //Act
-        var result = await _adminService.DeleteUserFromPermission(_email, _permissionName);
+        var result = await _adminService.DeleteUserFromPermission(_deleteUserFromPermissionRequest);
 
         //Assert
         Assert.That(
@@ -421,11 +431,11 @@ public class AdminServiceTests
     public async Task DeleteUserFromPermission_ReturnsFailed_ServiceError()
     {
         //Arrange
-        _mockUserRepository.Setup(x => x.GetByEmail(_email))
+        _mockUserRepository.Setup(x => x.GetByEmail(_deleteUserFromPermissionRequest.Email))
             .ThrowsAsync(new Exception("Some exception"));
 
         //Act
-        var result = await _adminService.DeleteUserFromPermission(_email, _permissionName);
+        var result = await _adminService.DeleteUserFromPermission(_deleteUserFromPermissionRequest);
 
         //Assert
         Assert.That(
