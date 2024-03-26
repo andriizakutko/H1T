@@ -21,10 +21,10 @@ public class TransportAdvertisementRepository(ApplicationDbContext context) : IT
         return result.Entity;
     }
 
-    public async Task AddTransportAdvertisementImages(IEnumerable<TransportAdvertisementImage> advertisementImages)
+    public async Task<bool> AddTransportAdvertisementImages(IEnumerable<TransportAdvertisementImage> advertisementImages)
     {
         await context.TransportAdvertisementImages.AddRangeAsync(advertisementImages);
-        await context.SaveChangesAsync();
+        return await context.SaveChangesAsync() > 0;
     }
 
     public async Task<TransportAdvertisement> GetTransportAdvertisementById(Guid id)

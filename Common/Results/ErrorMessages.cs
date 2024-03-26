@@ -12,6 +12,8 @@ public static class ErrorMessages
     public static class TransportAdvertisement
     {
         public const string CreatorNotFound = "Creator was not found";
+        public const string CreateTransportAdvertisementFailed = "The transport advertisement was not created";
+        public const string GetTransportAdvertisementByIdFailed = "The transport advertisement was not fould";
     }
     public static class User
     {

@@ -141,9 +141,15 @@ public class TransportAdvertisementService : ITransportAdvertisementService
                 .Select(x => new TransportAdvertisementImage
                     { TransportAdvertisement = createdAdModel, Image = x }).ToList();
 
-            await _transportAdvertisementRepository.AddTransportAdvertisementImages(transportAdvertisementImages);
+            var isSuccess = await _transportAdvertisementRepository.AddTransportAdvertisementImages(transportAdvertisementImages);
 
-            return Result.Success();
+            if (isSuccess)
+            {
+                return Result.Success();
+            }
+
+            return Result.Failure(new Error(ErrorCodes.TransportAdvertisement.CreateTransportAdvertisement,
+                ErrorMessages.TransportAdvertisement.CreateTransportAdvertisementFailed));
         }
         catch (Exception ex)
         {
@@ -156,8 +162,11 @@ public class TransportAdvertisementService : ITransportAdvertisementService
     {
         try
         {
-            return Result<TransportAdvertisement>.Success(
-                await _transportAdvertisementRepository.GetTransportAdvertisementById(id));
+            var transportAdvertisementModel = await _transportAdvertisementRepository.GetTransportAdvertisementById(id);
+
+            return transportAdvertisementModel is not null 
+                ? Result<TransportAdvertisement>.Success(transportAdvertisementModel) 
+                : Result<TransportAdvertisement>.Failure(new Error(ErrorCodes.TransportAdvertisement.GetTransportAdvertisementById, ErrorMessages.TransportAdvertisement.GetTransportAdvertisementByIdFailed));
         }
         catch (Exception ex)
         {
