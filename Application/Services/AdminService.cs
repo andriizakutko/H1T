@@ -1,5 +1,6 @@
 ﻿using Application.Interfaces;
 using Common.Options;
+using Common.Requests;
 using Common.Responses;
 using Common.Results;
 using Domain;
@@ -61,25 +62,25 @@ public class AdminService : IAdminService
         }
     }
 
-    public async Task<Result> AddUserToPermission(string email, string permissionName)
+    public async Task<Result> AddUserToPermission(AddUserToPermissionRequest request)
     {
         try
         {
-            var user = await _userRepository.GetByEmail(email);
+            var user = await _userRepository.GetByEmail(request.Email);
             
             if (user is null)
             {
                 return Result.Failure(new Error(ErrorCodes.Admin.AddUserToPermission, ErrorMessages.User.UserNotExists));
             }
         
-            var result = await CheckPermission(user, permissionName);
+            var result = await CheckPermission(user, request.PermissionName);
 
             if (result.Value)
             {
                 return Result.Failure(new Error(ErrorCodes.Admin.AddUserToPermission, ErrorMessages.Admin.PermissionHasAlreadyAdded));
             }
 
-            var isSuccess = await _permissionRepository.AddUserPermission(user, permissionName);
+            var isSuccess = await _permissionRepository.AddUserPermission(user, request.PermissionName);
 
             return isSuccess 
                 ? Result.Success() 
@@ -128,25 +129,25 @@ public class AdminService : IAdminService
         }
     }
 
-    public async Task<Result> DeleteUserFromPermission(string email, string permissionName)
+    public async Task<Result> DeleteUserFromPermission(DeleteUserFromPermissionRequest request)
     {
         try
         {
-            var user = await _userRepository.GetByEmail(email);
+            var user = await _userRepository.GetByEmail(request.Email);
 
             if (user is null)
             {
                 return Result.Failure(new Error(ErrorCodes.Admin.DeleteUserFromPermission, ErrorMessages.User.UserNotFound));
             }
 
-            var userPermissions = await _userRepository.GetUserPermissions(email);
+            var userPermissions = await _userRepository.GetUserPermissions(request.Email);
 
-            if (userPermissions.All(p => p.Permission.Name != permissionName))
+            if (userPermissions.All(p => p.Permission.Name != request.PermissionName))
             {
                 return Result.Failure(new Error(ErrorCodes.Admin.DeleteUserFromPermission, ErrorMessages.Admin.UserNotHavePermissionToDelete));
             }
 
-            var isDeleted = await _permissionRepository.DeleteUserFromPermission(user, permissionName);
+            var isDeleted = await _permissionRepository.DeleteUserFromPermission(user, request.PermissionName);
 
             return isDeleted ? Result.Success() : Result.Failure(new Error(ErrorCodes.Admin.DeleteUserFromPermission, 
                     ErrorMessages.Admin.DeleteUserFromPermissionFailed));

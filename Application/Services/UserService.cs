@@ -61,8 +61,14 @@ public class UserService : IUserService
             var createdUser = await _repository.Create(user);
 
             if (createdUser is null) return Result.Failure(new Error(ErrorCodes.User.Register, ErrorMessages.User.UserNotCreated));
+
+            var addUserToPermissionRequest = new AddUserToPermissionRequest()
+            {
+                Email = createdUser.Email,
+                PermissionName = Permissions.User
+            };
             
-            var result = await _adminService.AddUserToPermission(createdUser.Email, Permissions.User);
+            var result = await _adminService.AddUserToPermission(addUserToPermissionRequest);
 
             return result.IsFailure 
                 ? Result.Failure(result.Error) 

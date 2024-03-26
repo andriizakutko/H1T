@@ -20,7 +20,7 @@ public class AdminController(IAdminService adminService) : BaseApiController
     public async Task<IActionResult> AddUserToPermission(AddUserToPermissionRequest addUserToPermissionRequest)
     {
         return HandleResult(
-            await adminService.AddUserToPermission(addUserToPermissionRequest.Email, addUserToPermissionRequest.PermissionName));
+            await adminService.AddUserToPermission(addUserToPermissionRequest));
     }
     
     [HttpGet("get-users-permissions")]
@@ -35,6 +35,6 @@ public class AdminController(IAdminService adminService) : BaseApiController
     public async Task<IActionResult> DeleteUserFromPermission(DeleteUserFromPermissionRequest deleteUserFromPermissionRequest)
     {
         return HandleResult(
-            await adminService.DeleteUserFromPermission(deleteUserFromPermissionRequest.Email, deleteUserFromPermissionRequest.PermissionName));
+            await adminService.DeleteUserFromPermission(deleteUserFromPermissionRequest));
     }
 }
