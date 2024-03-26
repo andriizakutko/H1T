@@ -1,0 +1,24 @@
+.mat-stepper-vertical {
+    margin-top: 8px;
+}
+  
+.mat-mdc-form-field {
+    margin-top: 16px;
+}
+
+.form-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-start;
+}
