@@ -1,0 +1,37 @@
+<mat-toolbar color="primary" class="mat-elevation-z6 toolbar">
+    <mat-toolbar-row>
+        <button mat-button>H1T</button>
+        <span class="spacer"></span>
+        <button mat-button *ngIf="!isAuthenticated">Register</button>
+        <button mat-button *ngIf="!isAuthenticated">Login</button>
+        <button mat-button [mat-menu-trigger-for]="profileMenu" *ngIf="isAuthenticated">
+            <mat-icon>expand_more</mat-icon>
+            andrii.zakutko@nixs.com
+        </button>
+        <button mat-icon-button *ngIf="isAuthenticated"><mat-icon>logout</mat-icon></button>
+        <mat-menu #profileMenu="matMenu" xPosition="after">
+            <button mat-menu-item>Profile</button>
+            <button mat-menu-item>Admin panel</button>
+            <button mat-menu-item>Moderator panel</button>
+            <button mat-menu-item>My advertisements</button>
+            <button mat-menu-item>Settings</button>
+        </mat-menu>
+    </mat-toolbar-row>
+    <mat-toolbar-row>
+        <span style="margin-left: 15px;">Marketplace</span>
+        <span class="spacer"></span>
+
+        <button class="actions-btn" mat-button [mat-menu-trigger-for]="actionsMenu" *ngIf="isAuthenticated">
+            <mat-icon>expand_more</mat-icon>
+            Actions menu
+        </button>
+
+        <mat-menu #actionsMenu="matMenu" xPosition="after">
+            <button mat-menu-item *ngIf="isAuthenticated" [mat-menu-trigger-for]="advertisementActionsMenu">Advertisement</button>
+        </mat-menu>
+
+        <mat-menu #advertisementActionsMenu="matMenu" xPosition="after">
+            <button mat-menu-item *ngIf="isAuthenticated" (click)="openCreateAdvertisementDialog()">Create new</button>
+        </mat-menu>
+    </mat-toolbar-row>
+</mat-toolbar>

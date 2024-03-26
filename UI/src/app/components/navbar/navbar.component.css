@@ -1,0 +1,12 @@
+.spacer {
+    flex: 1 1 auto;
+}
+
+.profile-btn {
+    background-color: rgb(255, 255, 255);
+    color: rgb(64, 81, 181);
+}
+
+.actions-btn {
+    margin-left: 50px;
+}
