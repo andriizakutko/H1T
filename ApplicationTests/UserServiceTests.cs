@@ -144,7 +144,13 @@ public class UserServiceTests
 
         _mockUserRepository.Setup(x => x.Create(It.IsAny<User>())).ReturnsAsync(_createdUser);
 
-        _mockAdminService.Setup(x => x.AddUserToPermission(_createdUser.Email, Permissions.User))
+        var addUserToPermissionRequest = new AddUserToPermissionRequest()
+        {
+            Email = _createdUser.Email,
+            PermissionName = Permissions.User
+        };
+
+        _mockAdminService.Setup(x => x.AddUserToPermission(addUserToPermissionRequest))
             .ThrowsAsync(new Exception("Some exception"));
         
         //Act
@@ -171,7 +177,7 @@ public class UserServiceTests
 
         _mockUserRepository.Setup(x => x.Create(It.IsAny<User>())).ReturnsAsync(_createdUser);
 
-        _mockAdminService.Setup(x => x.AddUserToPermission(_createdUser.Email, Permissions.User))
+        _mockAdminService.Setup(x => x.AddUserToPermission(It.IsAny<AddUserToPermissionRequest>()))
             .ReturnsAsync(Result.Success());
         
         //Act
@@ -218,8 +224,14 @@ public class UserServiceTests
 
         _mockUserRepository.Setup(x => x.Create(It.IsAny<User>()))
             .ReturnsAsync(_createdUser);
+        
+        var addUserToPermissionRequest = new AddUserToPermissionRequest()
+        {
+            Email = _createdUser.Email,
+            PermissionName = Permissions.User
+        };
 
-        _mockAdminService.Setup(x => x.AddUserToPermission(_createdUser.Email, Permissions.User))
+        _mockAdminService.Setup(x => x.AddUserToPermission(addUserToPermissionRequest))
             .ReturnsAsync(Result.Failure(new Error(ErrorCodes.Admin.AddUserToPermission,
                 ErrorMessages.Admin.PermissionHasAlreadyAdded)));
         
@@ -246,8 +258,14 @@ public class UserServiceTests
 
         _mockUserRepository.Setup(x => x.Create(It.IsAny<User>()))
             .ReturnsAsync(_createdUser);
+        
+        var addUserToPermissionRequest = new AddUserToPermissionRequest()
+        {
+            Email = _createdUser.Email,
+            PermissionName = Permissions.User
+        };
 
-        _mockAdminService.Setup(x => x.AddUserToPermission(_createdUser.Email, Permissions.User))
+        _mockAdminService.Setup(x => x.AddUserToPermission(addUserToPermissionRequest))
             .ReturnsAsync(Result.Failure(new Error(ErrorCodes.Admin.AddUserToPermission, ErrorMessages.User.UserNotExists)));
         
         //Act
