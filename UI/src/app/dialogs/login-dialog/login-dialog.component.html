@@ -1,0 +1,31 @@
+<h2 mat-dialog-title>Login</h2>
+<mat-dialog-content class="mat-typography">
+    <form [formGroup]="loginFormGroup" class="form-container">
+        <ng-template matStepLabel>Preparation</ng-template>
+        <div class="form-row">
+            <mat-form-field class="form-input">
+                <mat-label>Email</mat-label>
+                <input matInput formControlName="email" placeholder="example@gmail.com" required>
+                <mat-error *ngIf="loginFormGroup.get('email')!.invalid && (loginFormGroup.get('email')!.dirty || loginFormGroup.get('email')!.touched)">
+                    <span *ngIf="loginFormGroup.get('email')!.errors">Please enter a valid email address</span>
+                </mat-error>
+            </mat-form-field>
+        </div>
+        <div class="form-row">
+            <mat-form-field class="form-input">
+                <mat-label>Enter your password</mat-label>
+                <input matInput formControlName="password" required [type]="hidePass ? 'password' : 'text'">
+                <button mat-icon-button matSuffix (click)="hidePass = !hidePass">
+                  <mat-icon>{{hidePass ? 'visibility_off' : 'visibility'}}</mat-icon>
+                </button>
+                <mat-error *ngIf="loginFormGroup.get('password')!.invalid && (loginFormGroup.get('password')!.dirty || loginFormGroup.get('password')!.touched)">
+                    <span *ngIf="loginFormGroup.get('password')!.errors">Password required and must be at least 6 characters long</span>
+                </mat-error>
+            </mat-form-field>
+        </div>
+    </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="login()" cdkFocusInitial>Login</button>
+  <button mat-button mat-dialog-close (click)="resetLoginForm()">Cancel</button>
+</mat-dialog-actions>

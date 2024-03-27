@@ -17,14 +17,34 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {ReactiveFormsModule} from '@angular/forms';
 import {MatInputModule} from '@angular/material/input';
 import {MatSelectModule} from '@angular/material/select';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
+import { LoginDialogComponent } from './dialogs/login-dialog/login-dialog.component';
+import { RegisterDialogComponent } from './dialogs/register-dialog/register-dialog.component';
+import { AuthInterceptor } from './interceptors/auth.interceptor';
+import { ToastrModule } from 'ngx-toastr';
+import { AdminPanelComponent } from './components/admin/admin-panel/admin-panel.component';
+import { SysadminPanelComponent } from './components/sysadmin/sysadmin-panel/sysadmin-panel.component';
+import { ModeratorPanelComponent } from './components/moderator/moderator-panel/moderator-panel.component';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { ProfileComponent } from './components/profile/profile/profile.component';
+import { AdvertisementComponent } from './components/advertisement/advertisement/advertisement.component';
+import { MatGridListModule } from '@angular/material/grid-list';
+import {MatCardModule} from '@angular/material/card';
+import {MatDividerModule} from '@angular/material/divider';
 
 @NgModule({
   declarations: [
     AppComponent,
     NavbarComponent,
     DashboardComponent,
-    CreateAdvertisementDialogComponent
+    CreateAdvertisementDialogComponent,
+    LoginDialogComponent,
+    RegisterDialogComponent,
+    AdminPanelComponent,
+    SysadminPanelComponent,
+    ModeratorPanelComponent,
+    ProfileComponent,
+    AdvertisementComponent
   ],
   imports: [
     BrowserModule,
@@ -40,9 +60,22 @@ import { HttpClientModule } from '@angular/common/http';
     ReactiveFormsModule,
     MatInputModule,
     MatSelectModule,
-    HttpClientModule
+    HttpClientModule,
+    ToastrModule.forRoot({
+      positionClass: 'toast-top-left'
+    }),
+    MatProgressSpinnerModule,
+    MatGridListModule,
+    MatCardModule,
+    MatDividerModule
   ],
-  providers: [],
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

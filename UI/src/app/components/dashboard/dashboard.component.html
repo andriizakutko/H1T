@@ -1,1 +1,49 @@
-<p>dashboard works!</p>
+<mat-toolbar color="primary" class="toolbar">
+    <mat-toolbar-row>
+        <span style="margin-left: 15px;">Marketplace</span>
+        <span class="spacer"></span>
+
+        <button class="actions-btn" mat-button [mat-menu-trigger-for]="actionsMenu" *ngIf="(auth.isAuthenticated$ | async)">
+            <mat-icon>expand_more</mat-icon>
+            Actions menu
+        </button>
+
+        <mat-menu #actionsMenu="matMenu" xPosition="after">
+            <button mat-menu-item *ngIf="(auth.isAuthenticated$ | async)" [mat-menu-trigger-for]="advertisementActionsMenu">Transport advertisement</button>
+        </mat-menu>
+
+        <mat-menu #advertisementActionsMenu="matMenu" xPosition="after">
+            <button mat-menu-item *ngIf="(auth.isAuthenticated$ | async)" (click)="openCreateAdvertisementDialog()">Create new</button>
+        </mat-menu>
+    </mat-toolbar-row>
+</mat-toolbar>
+
+<div class="dashboard-container">
+    <div class="dashboard-filter-container">
+        <h3>Filter section</h3>
+    </div>
+    <div class="dashboard-advertisements-list-container">
+        <mat-card class="advertisement-card" *ngFor="let advertisement of advertisements">
+            <mat-card-header>
+                <mat-card-title>{{ advertisement.title }}</mat-card-title>
+                <mat-card-subtitle>{{ advertisement.subTitle }}</mat-card-subtitle>
+            </mat-card-header>
+            <img style="padding: 10px;" mat-card-image [src]="advertisement.images.length ? advertisement.images[0] : '../../assets/advertisement-image-default.jpg'" alt="Photo of {{ advertisement.title }}">
+            <mat-card-content>
+                <ul>
+                <li><strong>Price:</strong> {{ advertisement.price | currency }}</li>
+                <li><strong>Type:</strong> {{ advertisement.type }}</li>
+                <li><strong>Make:</strong> {{ advertisement.make }}</li>
+                <li><strong>Model:</strong> {{ advertisement.model }}</li>
+                </ul>
+            </mat-card-content>
+            <mat-card-actions>
+            </mat-card-actions>
+            <mat-card-actions>
+                <p>Creation date: {{ advertisement.createdAt | date:'mediumDate' }}</p>
+                <span class="spacer"></span>
+                <button class="advertisement-card-btn" mat-button>More...</button>
+            </mat-card-actions>
+        </mat-card>
+    </div>
+</div>

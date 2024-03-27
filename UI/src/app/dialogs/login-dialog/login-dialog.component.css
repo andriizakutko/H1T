@@ -1,0 +1,15 @@
+.form-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.form-input {
+    width: 400px !important;
+}

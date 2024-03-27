@@ -1,6 +1,6 @@
 <h2 mat-dialog-title>Create new transport advertisement</h2>
 <mat-dialog-content class="mat-typography">
-  <mat-stepper orientation="vertical" [linear]="isLinear" #stepper>
+  <mat-stepper orientation="vertical" [linear]="true" #stepper>
     <mat-step [stepControl]="firstFormGroup">
       <form [formGroup]="firstFormGroup" class="form-container">
         <ng-template matStepLabel>Preparation</ng-template>

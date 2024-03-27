@@ -17,7 +17,7 @@ export class CreateAdvertisementDialogComponent {
   previousTypeName: string = '';
   previousMakeName: string = '';
    
-  secondFormGroup = this._formBuilder.group({
+  secondFormGroup = this.formBuilder.group({
     title: ['', Validators.required],
     subTitle: ['', Validators.required],
     description: ['', Validators.required],
@@ -26,7 +26,8 @@ export class CreateAdvertisementDialogComponent {
     city: ['', Validators.required],
     address: ['', Validators.required],
   });
-  thirdFormGroup = this._formBuilder.group({
+
+  thirdFormGroup = this.formBuilder.group({
     engineCapacity: [0, Validators.required],
     serialNumber: ['', Validators.required],
     fuelConsumption: [0, Validators.required],
@@ -36,13 +37,13 @@ export class CreateAdvertisementDialogComponent {
     isElectric: [false, Validators.required],
     isUsed: [false, Validators.required]
   });
-  fourthFormGroup = this._formBuilder.group({
+
+  fourthFormGroup = this.formBuilder.group({
     images: [[], Validators.required],
   });
-  isLinear = true;
 
-  constructor(private _formBuilder: FormBuilder, private resourceService: ResourceService) {
-    this.firstFormGroup = this._formBuilder.group({
+  constructor(private formBuilder: FormBuilder, private resourceService: ResourceService) {
+    this.firstFormGroup = this.formBuilder.group({
       transportType: { value: '', disabled: false },
       transportMake: { value: '', disabled: true },
       transportModel: { value: '', disabled: true },

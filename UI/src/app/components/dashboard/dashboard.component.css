@@ -1,0 +1,31 @@
+.spacer {
+    flex: 1 1 auto;
+}
+
+.dashboard-container {
+    background-color: rgb(235, 247, 248);
+    display: flex;
+    padding: 35px 250px;
+}
+
+.dashboard-filter-container {
+    width: 300px;
+}
+
+.dashboard-advertisements-list-container {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    margin-left: 10px;
+}
+
+.advertisement-card {
+    background-color: rgb(255, 255, 255);
+    flex-basis: calc(33.33% - 20px);
+    margin: 10px;
+}
+
+.advertisement-card-btn {
+    margin-right: 5px;
+    margin-bottom: 15px;
+}
