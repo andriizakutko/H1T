@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
-[Route("api/recource")]
+[Route("api/resource")]
 public class ResourceController(IResourceService service) : BaseApiController
 {
     [HttpGet("get-transport-types")]
