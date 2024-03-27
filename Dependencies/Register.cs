@@ -90,4 +90,18 @@ public static class Register
         services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
         services.AddSingleton<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
     }
+    
+    public static void ConfigureCors(this IServiceCollection services)
+    {
+        services.AddCors(opt =>
+        {
+            opt.AddDefaultPolicy(builder =>
+            {
+                builder.WithOrigins("http://localhost:4200")
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials();
+            });
+        });
+    }
 }

@@ -15,6 +15,7 @@ builder.Services.RegisterProviders();
 builder.Services.RegisterOptions(builder.Configuration);
 builder.Services.RegisterAuthentication(builder.Configuration);
 builder.Services.RegisterAuthorization();
+builder.Services.ConfigureCors();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
@@ -60,6 +61,8 @@ var adminOptions = services.GetService<IOptions<AdminOptions>>().Value;
 await SeedData.SeedSysAdminAndPermissionsData(context, hashingService, adminOptions);
 await SeedData.SeedModeratorOverviewStatuses(context);
 await SeedData.SeedResources(context);
+
+app.UseCors();
 
 app.UseHttpsRedirection();
 
