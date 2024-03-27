@@ -29,4 +29,5 @@ public class TransportAdvertisementResult
     public string CreatorEmail { get; set; }
     public string CreatorFirstName { get; set; }
     public string CreatorLastName { get; set; }
+    public DateTime? CreatedAt { get; set; }
 }
