@@ -68,7 +68,8 @@ public class TransportAdvertisementService : ITransportAdvertisementService
                 Images = x.Images.Select(i => i.Image.Url).ToArray(),
                 CreatorEmail = x.Creator.Email,
                 CreatorFirstName = x.Creator.FirstName,
-                CreatorLastName = x.Creator.LastName
+                CreatorLastName = x.Creator.LastName,
+                CreatedAt = x.CreatedAt
             });
             
             return Result<IEnumerable<TransportAdvertisementResult>>.Success(advertisements);
