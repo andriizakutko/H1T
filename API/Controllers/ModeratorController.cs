@@ -16,7 +16,7 @@ public class ModeratorController(IModeratorService moderatorService) : BaseApiCo
             await moderatorService.UpdateModeratorOverviewStatus(request));
     }
 
-    [HttpGet("get-transport-advertisements/{statusId}")]
+    [HttpGet("get-transport-advertisements/statusId={statusId}")]
     [HasPermission(Permissions.Moderator)]
     public async Task<IActionResult> GetTransportAdvertisementByStatusId(Guid statusId)
     {
