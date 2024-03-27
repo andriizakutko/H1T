@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Value } from 'src/app/models/Value';
+import { ResourceService } from 'src/app/services/resource/resource.service';
 
 @Component({
   selector: 'app-create-advertisement-dialog',
@@ -8,7 +10,13 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 })
 export class CreateAdvertisementDialogComponent {
   firstFormGroup: FormGroup;
-  
+  transportTypes: Value[] = [];
+  transportBodyTypes: Value[] = [];
+  transportMakes: Value[] = [];
+  transportModels: Value[] = [];
+  previousTypeName: string = '';
+  previousMakeName: string = '';
+   
   secondFormGroup = this._formBuilder.group({
     title: ['', Validators.required],
     subTitle: ['', Validators.required],
@@ -33,7 +41,7 @@ export class CreateAdvertisementDialogComponent {
   });
   isLinear = true;
 
-  constructor(private _formBuilder: FormBuilder) {
+  constructor(private _formBuilder: FormBuilder, private resourceService: ResourceService) {
     this.firstFormGroup = this._formBuilder.group({
       transportType: { value: '', disabled: false },
       transportMake: { value: '', disabled: true },
@@ -67,45 +75,81 @@ export class CreateAdvertisementDialogComponent {
     this.firstFormGroup.get('transportModel')!.disable();
     this.firstFormGroup.get('transportBody')!.disable();
     this.firstFormGroup.get('transportBodyType')!.disable();
+
+    this.transportBodyTypes = [];
+    this.transportMakes = [];
+    this.transportModels = [];
+
+    this.previousTypeName = '';
+    this.previousMakeName = '';
   }
 
-  selectTransportTypeProcess() {
-    if(this.firstFormGroup.get('transportBodyType')!.value !== '' 
+  selectTransportTypeProcess(id: string, typeName: string) {
+    if(typeName !== this.previousTypeName
+      || this.previousTypeName === '') {
+      this.previousTypeName = typeName;
+      if(this.firstFormGroup.get('transportBodyType')!.value !== '' 
       || this.firstFormGroup.get('transportMake')!.value !== '') 
-    {
-      this.firstFormGroup.get('transportBodyType')!.setValue('');
-      this.firstFormGroup.get('transportMake')!.setValue('');
-      this.firstFormGroup.get('transportModel')!.setValue('');
-      this.firstFormGroup.get('transportModel')!.disable();
+      {
+        this.transportBodyTypes = [];
+        this.transportMakes = [];
+        this.transportModels = [];
+        this.firstFormGroup.get('transportBodyType')!.setValue('');
+        this.firstFormGroup.get('transportMake')!.setValue('');
+        this.firstFormGroup.get('transportModel')!.setValue('');
+        this.firstFormGroup.get('transportModel')!.disable();
+      }
+      this.fetchTransportBodyTypes(id);
+      this.fetchTransportMakes(id);
+      this.firstFormGroup.get('transportBodyType')!.enable();
+      this.firstFormGroup.get('transportMake')!.enable();
     }
-    this.fetchTransportBodyTypes();
-    this.fetchTransportMakes();
-    this.firstFormGroup.get('transportBodyType')!.enable();
-    this.firstFormGroup.get('transportMake')!.enable();
   }
 
-  selectTransportMakeProcess() {
-    if(this.firstFormGroup.get('transportModel')!.value !== '')
+  selectTransportMakeProcess(id: string, makeName: string) {
+    if(makeName !== this.previousMakeName
+      || this.previousMakeName === '')
     {
-      this.firstFormGroup.get('transportModel')!.setValue('');
+      this.previousMakeName = makeName;
+      if(this.firstFormGroup.get('transportModel')!.value !== '')
+      {
+        this.transportModels = [];
+        this.firstFormGroup.get('transportModel')!.setValue('');
+      }
+      this.fetchTransportModels(id);
+      this.firstFormGroup.get('transportModel')!.enable();
     }
-    this.fetchTransportModels();
-    this.firstFormGroup.get('transportModel')!.enable();
   }
 
   fetchTransportTypes() {
-    console.log('fetch data about transport types')
+    this.resourceService.getTransportTypes().subscribe(response => {
+      if(response.statusCode === 200) {
+        this.transportTypes = Object.values(response.data);
+      }
+    });
   }
 
-  fetchTransportMakes() {
-    console.log('fetch data about transport makes')
+  fetchTransportMakes(id: string) {
+    this.resourceService.getTransportMakes(id).subscribe(response => {
+      if(response.statusCode === 200) {
+        this.transportMakes = Object.values(response.data);
+      }
+    })
   }
 
-  fetchTransportModels() {
-    console.log('fetch data about transport models')
+  fetchTransportModels(id: string) {
+    this.resourceService.getTransportModels(id).subscribe(response => {
+      if(response.statusCode === 200) {
+        this.transportModels = Object.values(response.data);
+      }
+    })
   }
 
-  fetchTransportBodyTypes() {
-    console.log('fetch data about transport body types')
+  fetchTransportBodyTypes(id: string) {
+    this.resourceService.getTransportBodyTypes(id).subscribe(response => {
+      if(response.statusCode === 200) {
+        this.transportBodyTypes = Object.values(response.data);
+      }
+    })
   }
 }

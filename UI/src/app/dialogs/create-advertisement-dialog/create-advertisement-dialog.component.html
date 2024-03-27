@@ -8,14 +8,13 @@
             <mat-form-field>
                 <mat-label>Transport type</mat-label>
                 <mat-select formControlName="transportType">
-                    <mat-option value="Passenger" (click)="selectTransportTypeProcess()">Passenger</mat-option>
-                    <mat-option value="Some transport type" (click)="selectTransportTypeProcess()">Some type</mat-option>
+                  <mat-option *ngFor="let value of transportTypes" [value]="value.name" (click)="selectTransportTypeProcess(value.id, value.name)">{{value.name}}</mat-option>
                 </mat-select>
             </mat-form-field>
             <mat-form-field style="margin-left: 10px;">
               <mat-label>Transport body type</mat-label>
               <mat-select formControlName="transportBodyType">
-                  <mat-option value="Some body type">Some body type</mat-option>
+                  <mat-option *ngFor="let value of transportBodyTypes" [value]="value.name">{{value.name}}</mat-option>
               </mat-select>
             </mat-form-field>
         </div>
@@ -23,14 +22,13 @@
             <mat-form-field>
                 <mat-label>Transport make</mat-label>
                 <mat-select formControlName="transportMake">
-                    <mat-option value="Some transport make" (click)="selectTransportMakeProcess()">Some transport make</mat-option>
-                    <mat-option value="Some transport make 1" (click)="selectTransportMakeProcess()">Some transport make 1</mat-option>
+                    <mat-option *ngFor="let value of transportMakes" [value]="value.name" (click)="selectTransportMakeProcess(value.id, value.name)">{{value.name}}</mat-option>
                 </mat-select>
             </mat-form-field>
             <mat-form-field style="margin-left: 10px;">
               <mat-label>Transport model</mat-label>
               <mat-select formControlName="transportModel">
-                  <mat-option value="Some transport model">Some transport model</mat-option>
+                  <mat-option *ngFor="let value of transportModels" [value]="value.name">{{value.name}}</mat-option>
               </mat-select>
           </mat-form-field>
         </div>
